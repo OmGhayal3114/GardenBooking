@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="./sd.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chicle&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="whole-page">
+        <div class="heading">
+                <img class="logo" src="./sprint_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg">
+                <p class="name">KheloIndia</p>
+                <button class="b1">VENUES</button>
+                <button class="b2">COACHING</button>
+                <button class="b3">EVENTS</button>
+                <button class="b4">SHOP</button>
+                <button class="sign">SIGNUP</button>
+                <button class="log">LOGIN</button>
+        </div>  
+        <div class="handles">
+            <img class="i1" src="./linkedin-app-icon.svg">
+            <img class="i3" src="./ig-instagram-icon.svg">
+            <img class="i4" src="./youtube-color-icon.svg">
+            <img class="i5" src="./facebook-round-color-icon.svg">
+        </div>
+  <div class="scroll">
+    <div class="slider">
+
+        <div class="box">
+            <div class="left">
+                <p class="tagline">Find the pitch. Build your team. Play your game.</p>
+            </div>
+            <div class="right">
+                <img class="sport" src="cricket.jpg">
+            </div>
+        </div>
+        <div class="box">
+           <div class="left">
+                <p class="tagline">our team is ready. Is the ground?</p>
+            </div>
+            <div class="right">
+                <img class="sport" src="football.avif">
+            </div>
+        </div>
+        <div class="box">
+            <div class="left">
+                <p class="tagline">Raid. Defend. Dominate.</p>
+            </div>
+            <div class="right">
+                <img class="sport" src="kabbadi.jpg">
+            </div>
+        </div>
+        <div class="box">
+           <div class="left">
+                <p class="tagline">Every move begins with the right place.</p>
+            </div>
+            <div class="right">
+                <img class="sport" src="chess.avif">
+            </div>
+        </div>
+         <div class="box">
+            <div class="left">
+                <p class="tagline">Smash the Game, Book Your Court!</p>
+            </div>
+            <div class="right">
+                <img class="sport" src="badminton.jpg">
+            </div>
+        </div>
+
+    </div>
+   </div>
+        <div class="open-space">
+            
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+    const slider = document.querySelector(".slider");
+const slides = document.querySelectorAll(".box");
+
+const firstSlide = slides[0].cloneNode(true);
+slider.appendChild(firstSlide);
+
+let currentSlide = 0;
+
+setInterval(() => {
+
+    currentSlide++;
+
+    slider.style.transform =
+        `translateX(-${currentSlide * 100}%)`;
+
+}, 3000);
+
+
+slider.addEventListener("transitionend", () => {
+
+    if (currentSlide === slides.length) {
+
+        slider.style.transition = "none";
+
+        currentSlide = 0;
+
+        slider.style.transform = "translateX(0)";
+
+        // Force browser to apply the reset
+        slider.offsetHeight;
+
+        slider.style.transition = "transform 0.8s ease-in-out";
+    }
+
+});
+</script>
