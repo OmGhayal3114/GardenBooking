@@ -47,7 +47,11 @@ app.use((err, req, res, next) => {
 });
 
 // ── Start Server ─────────────────────────────────────────────
-app.listen(PORT, () => {
-    console.log(`🚀 KHELOINDIA server running at http://localhost:${PORT}`);
-    console.log(`📊 Admin panel: http://localhost:${PORT}/admin/`);
-});
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`🚀 KHELOINDIA server running at http://localhost:${PORT}`);
+        console.log(`📊 Admin panel: http://localhost:${PORT}/admin/`);
+    });
+}
+
+module.exports = app;
