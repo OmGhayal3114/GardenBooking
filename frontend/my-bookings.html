@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings — KheloIndia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+    <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🏃</div>
+        <span class="logo-text">Khelo<span>India</span></span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="venues.html">🏟️ Venues</a></li>
+        <li><a href="index.html#sports-section">🏅 Sports</a></li>
+        <li><a href="index.html#events">📅 Events</a></li>
+        <li><a href="my-bookings.html" class="active">📋 My Bookings</a></li>
+        <li><a href="index.html#about">ℹ️ About</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button class="btn-ghost">Login</button>
+        <button class="btn-primary">Sign Up</button>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+    <a href="venues.html">🏟️ Venues</a>
+    <a href="my-bookings.html">📋 My Bookings</a>
+    <div class="divider"></div>
+    <button class="btn-primary">Login / Sign Up</button>
+</div>
+
+<!-- My Bookings -->
+<section class="my-bookings-section">
+    <div class="container">
+        <div class="section-header" style="text-align:left;margin-bottom:32px;">
+            <p class="section-eyebrow">Your booking history</p>
+            <h1 class="section-title">My Bookings</h1>
+        </div>
+
+        <div class="bookings-tabs">
+            <button class="bookings-tab active" onclick="filterBookings('all',this)">All</button>
+            <button class="bookings-tab" onclick="filterBookings('CONFIRMED',this)">Confirmed</button>
+            <button class="bookings-tab" onclick="filterBookings('COMPLETED',this)">Completed</button>
+            <button class="bookings-tab" onclick="filterBookings('CANCELLED',this)">Cancelled</button>
+        </div>
+
+        <div class="booking-list" id="booking-list">
+            <!-- Rendered by JS -->
+        </div>
+
+        <div id="empty-state" style="display:none;text-align:center;padding:60px 0;">
+            <div style="font-size:56px;margin-bottom:16px;">📋</div>
+            <h3 style="margin-bottom:8px;">No Bookings Yet</h3>
+            <p style="color:var(--gray-light);margin-bottom:24px;">You haven't made any bookings yet. Find a ground and get playing!</p>
+            <button class="btn-primary" style="padding:12px 28px;border:none;border-radius:12px;font-size:15px;font-weight:700;" onclick="window.location.href='venues.html'">Find a Ground</button>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom" style="border-top:none;padding-top:0;">
+            <p>© 2026 KheloIndia — College Demo Project</p>
+            <a href="index.html" style="color:var(--green);font-size:14px;font-weight:600;">← Back to Home</a>
+        </div>
+    </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+// ── Sport emoji map
+const sportEmojis = {
+    Cricket:'🏏', Football:'⚽', Badminton:'🏸', Kabaddi:'🤼', Chess:'♟️'
+};
+
+// ── Load bookings from localStorage
+let allBookings = [];
+
+function loadBookings() {
+    const stored = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
+
+    // Add demo bookings if empty
+    if (stored.length === 0) {
+        allBookings = [
+            { id:'KI-2026-0001', venue:'Dadar Multi-Sports Arena',  area:'Dadar',  sport:'Cricket',   date:'28 Sep 2026', time:'7:00 AM – 8:00 AM',   amount:800,  status:'CONFIRMED',  txn:'DEMO-KI-2026-001' },
+            { id:'KI-2026-0002', venue:'Bandra Grounds Complex',    area:'Bandra', sport:'Cricket',   date:'28 Sep 2026', time:'6:00 PM – 7:00 PM',   amount:1200, status:'CONFIRMED',  txn:'DEMO-KI-2026-004' },
+            { id:'KI-2026-0003', venue:'Andheri Sports Hub',        area:'Andheri',sport:'Football',  date:'25 Sep 2026', time:'7:00 AM – 8:00 AM',   amount:900,  status:'COMPLETED',  txn:'DEMO-KI-2026-005' },
+            { id:'KI-2026-0004', venue:'Dadar Multi-Sports Arena',  area:'Dadar',  sport:'Football',  date:'22 Sep 2026', time:'6:00 PM – 7:00 PM',   amount:800,  status:'CANCELLED',  txn:'DEMO-KI-2026-007' },
+        ];
+    } else {
+        allBookings = stored;
+    }
+}
+
+function renderBookings(list) {
+    const container = document.getElementById('booking-list');
+    const empty     = document.getElementById('empty-state');
+
+    if (list.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+
+    empty.style.display = 'none';
+    container.innerHTML = list.map(b => `
+        <div class="booking-item fade-up" id="booking-${b.id.replace(/-/g,'_')}">
+            <div class="booking-sport-icon">${sportEmojis[b.sport] || '🏅'}</div>
+            <div class="booking-info">
+                <h3>${b.venue}</h3>
+                <p>📍 ${b.area || 'Mumbai'} &nbsp;|&nbsp; 🏅 ${b.sport}</p>
+                <p>📅 ${b.date} &nbsp;|&nbsp; ⏰ ${b.time}</p>
+                <p style="font-size:12px;color:var(--gray-mid);margin-top:4px;">TXN: ${b.txn}</p>
+            </div>
+            <div class="booking-meta">
+                <span class="booking-status status-${b.status.toLowerCase()}">${b.status}</span>
+                <span class="booking-amount">₹${b.amount.toLocaleString('en-IN')}</span>
+                <span class="booking-ref">${b.id}</span>
+            </div>
+            <div class="booking-actions">
+                <button class="btn-sm" onclick="showBookingDetail('${b.id}')">View</button>
+                ${b.status === 'CONFIRMED' ? `<button class="btn-sm btn-sm-danger" onclick="cancelBookingDemo('${b.id}')">Cancel</button>` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    document.querySelectorAll('.booking-item.fade-up').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 80);
+    });
+}
+
+function filterBookings(status, btn) {
+    document.querySelectorAll('.bookings-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    const filtered = status === 'all' ? allBookings : allBookings.filter(b => b.status === status);
+    renderBookings(filtered);
+}
+
+function cancelBookingDemo(id) {
+    if (!confirm('Cancel this booking? This action cannot be undone.')) return;
+
+    const booking = allBookings.find(b => b.id === id);
+    if (booking) {
+        booking.status = 'CANCELLED';
+        // Update localStorage
+        const stored = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
+        const storedIdx = stored.findIndex(b => b.id === id);
+        if (storedIdx !== -1) { stored[storedIdx].status = 'CANCELLED'; localStorage.setItem('ki_bookings', JSON.stringify(stored)); }
+
+        showToast('Booking cancelled. Demo refund initiated.', 'info');
+        filterBookings('all', null);
+        document.querySelector('.bookings-tab').classList.add('active');
+    }
+}
+
+function showBookingDetail(id) {
+    const b = allBookings.find(b => b.id === id);
+    if (!b) return;
+    showToast(`${b.id} — ${b.venue} — ${b.sport} — ${b.date}`, 'info');
+}
+
+// ── Init
+document.addEventListener('DOMContentLoaded', () => {
+    loadBookings();
+    renderBookings(allBookings);
+
+    // Navbar scroll
+    window.addEventListener('scroll', () => {
+        document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Hamburger
+    const ham = document.getElementById('hamburger');
+    const mob = document.getElementById('mobile-menu');
+    ham.addEventListener('click', () => {
+        ham.classList.toggle('open');
+        mob.classList.toggle('open');
+    });
+});
+</script>
+</body>
+</html>

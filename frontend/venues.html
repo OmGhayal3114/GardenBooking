@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venues — KheloIndia</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Venues page specific */
+        .venues-page { padding-top: 100px; min-height: 100vh; background: var(--dark); }
+        .venues-layout { display: grid; grid-template-columns: 280px 1fr; gap: 32px; align-items: start; }
+
+        /* Filter Sidebar */
+        .filter-sidebar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            position: sticky;
+            top: 80px;
+        }
+
+        .filter-sidebar h3 { font-size: 16px; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+
+        .filter-group { margin-bottom: 24px; }
+        .filter-group-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray-mid);
+            margin-bottom: 12px;
+        }
+
+        .filter-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--gray-light);
+            transition: color var(--transition);
+        }
+
+        .filter-check:hover { color: var(--white); }
+        .filter-check input[type="checkbox"] { accent-color: var(--green); width: 16px; height: 16px; }
+
+        .filter-select {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--dark-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--white);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .price-range { display: flex; align-items: center; gap: 8px; }
+        .price-range input[type="range"] { flex: 1; accent-color: var(--green); }
+        .price-range span { font-size: 13px; font-weight: 700; color: var(--green); white-space: nowrap; }
+
+        .filter-apply-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--green);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .filter-clear-btn {
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            color: var(--gray-light);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .venues-main {}
+
+        .venues-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .venues-count { font-size: 16px; font-weight: 700; }
+        .venues-count span { color: var(--green); }
+
+        .sort-select {
+            padding: 8px 14px;
+            background: var(--dark-3);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--white);
+            font-size: 13px;
+            outline: none;
+        }
+
+        @media (max-width: 900px) {
+            .venues-layout { grid-template-columns: 1fr; }
+            .filter-sidebar { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Navbar -->
+<nav class="navbar scrolled" id="navbar">
+    <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🏃</div>
+        <span class="logo-text">Khelo<span>India</span></span>
+    </a>
+    <ul class="nav-links">
+        <li><a href="venues.html" class="active">🏟️ Venues</a></li>
+        <li><a href="index.html#sports-section">🏅 Sports</a></li>
+        <li><a href="index.html#events">📅 Events</a></li>
+        <li><a href="my-bookings.html">📋 My Bookings</a></li>
+        <li><a href="index.html#about">ℹ️ About</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button class="btn-ghost">Login</button>
+        <button class="btn-primary">Sign Up</button>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+    <a href="venues.html">🏟️ Venues</a>
+    <a href="my-bookings.html">📋 My Bookings</a>
+    <div class="divider"></div>
+    <button class="btn-primary">Login / Sign Up</button>
+</div>
+
+<!-- Page Content -->
+<div class="venues-page">
+    <div class="container">
+
+        <div class="section-header" style="text-align:left;margin-bottom:32px;">
+            <p class="section-eyebrow">Demo venue data — not real listings</p>
+            <h1 class="section-title">Sports Grounds in Mumbai</h1>
+        </div>
+
+        <div class="venues-layout">
+            <!-- ── Filter Sidebar ── -->
+            <aside class="filter-sidebar">
+                <h3>🎛️ Filters</h3>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">Sport</div>
+                    <label class="filter-check"><input type="checkbox" value="Cricket" onchange="applyFilters()"> 🏏 Cricket</label>
+                    <label class="filter-check"><input type="checkbox" value="Football" onchange="applyFilters()"> ⚽ Football</label>
+                    <label class="filter-check"><input type="checkbox" value="Badminton" onchange="applyFilters()"> 🏸 Badminton</label>
+                    <label class="filter-check"><input type="checkbox" value="Kabaddi" onchange="applyFilters()"> 🤼 Kabaddi</label>
+                    <label class="filter-check"><input type="checkbox" value="Chess" onchange="applyFilters()"> ♟️ Chess</label>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">Location</div>
+                    <select class="filter-select" id="filter-location" onchange="applyFilters()">
+                        <option value="">All Areas</option>
+                        <option>Dadar</option><option>Andheri</option><option>Borivali</option>
+                        <option>Bandra</option><option>Kurla</option><option>Powai</option>
+                        <option>Ghatkopar</option><option>Mulund</option><option>Vile Parle</option>
+                        <option>Chembur</option><option>Kandivali</option><option>Goregaon</option>
+                        <option>Lower Parel</option><option>Thane</option><option>Navi Mumbai</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">Max Price (₹/hour)</div>
+                    <div class="price-range">
+                        <input type="range" id="filter-price" min="500" max="3000" step="100" value="3000" oninput="updatePriceLabel(this); applyFilters()">
+                        <span id="price-label">₹3000</span>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">Min Rating</div>
+                    <select class="filter-select" id="filter-rating" onchange="applyFilters()">
+                        <option value="0">Any Rating</option>
+                        <option value="4">⭐⭐⭐⭐ 4.0+</option>
+                        <option value="4.5">⭐⭐⭐⭐½ 4.5+</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-group-title">Availability</div>
+                    <label class="filter-check"><input type="radio" name="avail" value="" checked onchange="applyFilters()"> All</label>
+                    <label class="filter-check"><input type="radio" name="avail" value="available" onchange="applyFilters()"> Available Today</label>
+                    <label class="filter-check"><input type="radio" name="avail" value="partial" onchange="applyFilters()"> Partial</label>
+                </div>
+
+                <button class="filter-clear-btn" onclick="clearFilters()">Clear All Filters</button>
+            </aside>
+
+            <!-- ── Venues Main Area ── -->
+            <div class="venues-main">
+                <div class="venues-header">
+                    <p class="venues-count">Showing <span id="venues-count-num">15</span> venues</p>
+                    <select class="sort-select" id="sort-select" onchange="applyFilters()">
+                        <option value="rating">Sort: Top Rated</option>
+                        <option value="price-asc">Sort: Price ↑</option>
+                        <option value="price-desc">Sort: Price ↓</option>
+                    </select>
+                </div>
+
+                <div class="venues-grid" id="venues-grid" style="grid-template-columns:repeat(2,1fr);">
+                    <!-- Rendered by JS -->
+                </div>
+
+                <div id="no-results" style="display:none;text-align:center;padding:60px 0;">
+                    <div style="font-size:48px;margin-bottom:12px;">🔍</div>
+                    <h3>No venues found</h3>
+                    <p style="color:var(--gray-light);margin-top:8px;">Try adjusting your filters.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom" style="border-top:none;padding-top:0;">
+            <p>© 2026 KheloIndia — College Demo Project. Venue data is fictional.</p>
+            <a href="index.html" style="color:var(--green);font-size:14px;font-weight:600;">← Back to Home</a>
+        </div>
+    </div>
+</footer>
+
+<!-- Venue Details Modal (reused from index.html) -->
+<div class="modal-overlay" id="venue-modal-overlay">
+    <div class="modal" id="venue-modal">
+        <button class="modal-close" onclick="closeVenueModal()">✕</button>
+        <img class="modal-img" id="modal-img" src="" alt="">
+        <div class="modal-body">
+            <h2 class="modal-venue-name" id="modal-name"></h2>
+            <p class="modal-location" id="modal-location"></p>
+            <div class="modal-meta-row">
+                <div class="modal-meta-item"><strong>Rating</strong><span id="modal-rating"></span></div>
+                <div class="modal-meta-item"><strong>Price</strong><span id="modal-price"></span></div>
+                <div class="modal-meta-item"><strong>Hours</strong><span id="modal-hours"></span></div>
+                <div class="modal-meta-item"><strong>Sports</strong><span id="modal-sports-list"></span></div>
+            </div>
+            <p class="modal-section-title">Amenities</p>
+            <div class="amenities-grid" id="modal-amenities"></div>
+            <p class="modal-section-title">Book a Slot</p>
+            <div class="modal-slots-select">
+                <select id="modal-sport-select" style="padding:10px 14px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);flex:1;outline:none;"></select>
+            </div>
+            <div class="slots-grid" id="modal-slots-grid" style="grid-template-columns:1fr;"></div>
+            <p class="modal-section-title">Reviews</p>
+            <div id="modal-reviews"></div>
+            <button class="modal-book-btn" id="modal-book-btn">Book This Venue</button>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Modal -->
+<div class="booking-modal-overlay" id="booking-modal-overlay">
+    <div class="booking-modal" id="booking-modal">
+        <div class="processing-overlay" id="processing-overlay">
+            <div class="spinner"></div>
+            <span class="processing-text">Processing your demo payment...</span>
+        </div>
+        <div class="booking-modal-header">
+            <h2>Book a Ground</h2>
+            <button class="modal-close" style="position:relative;top:auto;right:auto;" onclick="closeBookingModal()">✕</button>
+        </div>
+        <div class="booking-steps">
+            <div class="step active"><div class="step-num">1</div><span class="step-label">Sport</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">2</div><span class="step-label">Date</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">3</div><span class="step-label">Time</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">4</div><span class="step-label">Summary</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">5</div><span class="step-label">Pay</span></div>
+        </div>
+        <div class="booking-modal-body" id="booking-modal-body"></div>
+        <div class="booking-modal-footer" id="booking-modal-footer"></div>
+    </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+    // ── Venues page filter logic ──────────────────────────────
+    let currentVenues = [];
+
+    function applyFilters() {
+        const sports = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
+        const area   = document.getElementById('filter-location').value;
+        const price  = parseInt(document.getElementById('filter-price').value);
+        const rating = parseFloat(document.getElementById('filter-rating').value);
+        const avail  = document.querySelector('input[name="avail"]:checked')?.value || '';
+        const sort   = document.getElementById('sort-select').value;
+
+        let results = [...KI.venues];
+
+        if (sports.length)  results = results.filter(v => sports.some(s => v.sports.includes(s)));
+        if (area)           results = results.filter(v => v.area === area);
+        if (price < 3000)   results = results.filter(v => v.price <= price);
+        if (rating > 0)     results = results.filter(v => v.rating >= rating);
+        if (avail)          results = results.filter(v => v.availability === avail);
+
+        if (sort === 'rating')     results.sort((a,b) => b.rating - a.rating);
+        if (sort === 'price-asc')  results.sort((a,b) => a.price - b.price);
+        if (sort === 'price-desc') results.sort((a,b) => b.price - a.price);
+
+        currentVenues = results;
+        renderVenuesPage(results);
+    }
+
+    function renderVenuesPage(list) {
+        const grid      = document.getElementById('venues-grid');
+        const countEl   = document.getElementById('venues-count-num');
+        const noResults = document.getElementById('no-results');
+
+        countEl.textContent = list.length;
+
+        if (list.length === 0) {
+            grid.innerHTML = '';
+            noResults.style.display = 'block';
+            return;
+        }
+        noResults.style.display = 'none';
+
+        grid.innerHTML = list.map(v => `
+            <div class="venue-card fade-up">
+                <div class="venue-card-img">
+                    <img src="${v.image}" alt="${v.name}" loading="lazy" onerror="this.style.display='none'">
+                    <span class="venue-availability-badge badge-${v.availability}">
+                        ${v.availability === 'available' ? '✓ Available' : v.availability === 'partial' ? '◑ Partial' : '✗ Full'}
+                    </span>
+                    <span class="venue-distance">📍 ${v.distance}</span>
+                </div>
+                <div class="venue-card-body">
+                    <h3 class="venue-card-name">${v.name}</h3>
+                    <p class="venue-card-location">📍 ${v.area}, Mumbai</p>
+                    <div class="venue-sports-tags">
+                        ${v.sports.map(s => `<span class="sport-tag">${s}</span>`).join('')}
+                    </div>
+                    <div class="venue-meta">
+                        <span class="venue-rating">⭐ ${v.rating}</span>
+                        <span class="venue-price">₹${v.price.toLocaleString('en-IN')}<span>/hr</span></span>
+                    </div>
+                    <div class="venue-card-actions">
+                        <button class="btn-outline" onclick="openVenueModal(${v.id})">View Details</button>
+                        <button class="btn-book" onclick="startBooking(${v.id})">Book Now</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        document.querySelectorAll('.venue-card.fade-up').forEach((el, i) => {
+            setTimeout(() => el.classList.add('visible'), i * 60);
+        });
+    }
+
+    function updatePriceLabel(input) {
+        document.getElementById('price-label').textContent = `₹${parseInt(input.value).toLocaleString('en-IN')}`;
+    }
+
+    function clearFilters() {
+        document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+        document.getElementById('filter-location').value = '';
+        document.getElementById('filter-price').value = 3000;
+        document.getElementById('price-label').textContent = '₹3000';
+        document.getElementById('filter-rating').value = '0';
+        document.querySelector('input[name="avail"][value=""]').checked = true;
+        document.getElementById('sort-select').value = 'rating';
+        applyFilters();
+    }
+
+    // ── Init page ─────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        // Read URL params
+        const params = new URLSearchParams(window.location.search);
+        const sport  = params.get('sport');
+        const loc    = params.get('location');
+
+        if (sport) {
+            const cb = document.querySelector(`input[value="${sport}"]`);
+            if (cb) cb.checked = true;
+        }
+        if (loc) document.getElementById('filter-location').value = loc;
+
+        applyFilters();
+
+        // Navbar scroll
+        window.addEventListener('scroll', () => {
+            document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+        });
+
+        // Hamburger
+        const ham = document.getElementById('hamburger');
+        const mob = document.getElementById('mobile-menu');
+        ham.addEventListener('click', () => { ham.classList.toggle('open'); mob.classList.toggle('open'); });
+
+        // Close modals
+        document.querySelectorAll('.modal-overlay, .booking-modal-overlay').forEach(o => {
+            o.addEventListener('click', e => { if (e.target === o) { o.classList.remove('open'); document.body.style.overflow = ''; } });
+        });
+    });
+</script>
+</body>
+</html>

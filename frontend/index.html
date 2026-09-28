@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KheloIndia — Find. Book. Play.</title>
+    <meta name="description" content="Discover and book sports grounds across Mumbai. Cricket, Football, Badminton, Kabaddi, Chess and more.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================================
+     TOAST CONTAINER
+     ============================================================ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<nav class="navbar" id="navbar">
+    <a class="nav-logo" href="index.html">
+        <div class="logo-icon">🏃</div>
+        <span class="logo-text">Khelo<span>India</span></span>
+    </a>
+
+    <ul class="nav-links">
+        <li><a href="venues.html">🏟️ Venues</a></li>
+        <li><a href="index.html#sports-section">🏅 Sports</a></li>
+        <li><a href="index.html#events">📅 Events</a></li>
+        <li><a href="my-bookings.html">📋 My Bookings</a></li>
+        <li><a href="index.html#about">ℹ️ About</a></li>
+    </ul>
+
+    <div class="nav-actions">
+        <button class="btn-ghost" onclick="showAuthModal('login')">Login</button>
+        <button class="btn-primary" onclick="showAuthModal('signup')">Sign Up</button>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+    </button>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu">
+    <a href="venues.html">🏟️ Venues</a>
+    <a href="index.html#sports-section">🏅 Sports</a>
+    <a href="index.html#events">📅 Events</a>
+    <a href="my-bookings.html">📋 My Bookings</a>
+    <a href="index.html#about">ℹ️ About</a>
+    <div class="divider"></div>
+    <a href="#" onclick="showAuthModal('login')">Login</a>
+    <button class="btn-primary" onclick="showAuthModal('signup')">Sign Up</button>
+</div>
+
+<!-- ============================================================
+     HERO SECTION — Sports Carousel
+     ============================================================ -->
+<section class="hero" id="hero">
+    <div class="hero-scroll">
+        <div class="hero-slider" id="hero-slider">
+
+            <!-- Slide 1: Cricket -->
+            <div class="hero-slide">
+                <img class="hero-slide-img" src="images/cricket.jpg" alt="Cricket" loading="eager">
+                <div class="hero-content">
+                    <div class="hero-badge">🏏 Mumbai's #1 Sports Booking Platform</div>
+                    <h1 class="hero-title">Find Your Ground.<br><span class="accent">Play Your Game.</span></h1>
+                    <p class="hero-sub">Discover and book sports grounds across Mumbai — from cricket and football to badminton, kabaddi and more.</p>
+                    <div class="hero-buttons">
+                        <button class="hero-btn-primary" onclick="document.getElementById('search-bar').scrollIntoView({behavior:'smooth'})">🔍 Find a Ground</button>
+                        <button class="hero-btn-ghost" onclick="document.getElementById('sports-section').scrollIntoView({behavior:'smooth'})">🏅 Explore Sports</button>
+                    </div>
+                </div>
+                <span class="hero-slide-tag">CRICKET</span>
+            </div>
+
+            <!-- Slide 2: Football -->
+            <div class="hero-slide">
+                <img class="hero-slide-img" src="images/football.avif" alt="Football" loading="lazy">
+                <div class="hero-content">
+                    <div class="hero-badge">⚽ Mumbai's #1 Sports Booking Platform</div>
+                    <h1 class="hero-title">Our Team Is Ready.<br><span class="accent">Is the Ground?</span></h1>
+                    <p class="hero-sub">Book football pitches across Mumbai instantly. Check real-time availability and reserve your slot in seconds.</p>
+                    <div class="hero-buttons">
+                        <button class="hero-btn-primary" onclick="document.getElementById('search-bar').scrollIntoView({behavior:'smooth'})">🔍 Find a Ground</button>
+                        <button class="hero-btn-ghost" onclick="document.getElementById('sports-section').scrollIntoView({behavior:'smooth'})">🏅 Explore Sports</button>
+                    </div>
+                </div>
+                <span class="hero-slide-tag">FOOTBALL</span>
+            </div>
+
+            <!-- Slide 3: Kabaddi -->
+            <div class="hero-slide">
+                <img class="hero-slide-img" src="images/kabbadi.jpg" alt="Kabaddi" loading="lazy">
+                <div class="hero-content">
+                    <div class="hero-badge">🤼 Mumbai's #1 Sports Booking Platform</div>
+                    <h1 class="hero-title">Raid. Defend.<br><span class="accent">Dominate.</span></h1>
+                    <p class="hero-sub">Find kabaddi courts and multi-sport grounds in Mumbai. Book online, play the game.</p>
+                    <div class="hero-buttons">
+                        <button class="hero-btn-primary" onclick="document.getElementById('search-bar').scrollIntoView({behavior:'smooth'})">🔍 Find a Ground</button>
+                        <button class="hero-btn-ghost" onclick="document.getElementById('sports-section').scrollIntoView({behavior:'smooth'})">🏅 Explore Sports</button>
+                    </div>
+                </div>
+                <span class="hero-slide-tag">KABADDI</span>
+            </div>
+
+            <!-- Slide 4: Chess -->
+            <div class="hero-slide">
+                <img class="hero-slide-img" src="images/chess.avif" alt="Chess" loading="lazy">
+                <div class="hero-content">
+                    <div class="hero-badge">♟️ Mumbai's #1 Sports Booking Platform</div>
+                    <h1 class="hero-title">Every Move Begins<br><span class="accent">With the Right Place.</span></h1>
+                    <p class="hero-sub">From chess halls to open grounds — KheloIndia has every sport covered across every corner of Mumbai.</p>
+                    <div class="hero-buttons">
+                        <button class="hero-btn-primary" onclick="document.getElementById('search-bar').scrollIntoView({behavior:'smooth'})">🔍 Find a Ground</button>
+                        <button class="hero-btn-ghost" onclick="document.getElementById('sports-section').scrollIntoView({behavior:'smooth'})">🏅 Explore Sports</button>
+                    </div>
+                </div>
+                <span class="hero-slide-tag">CHESS</span>
+            </div>
+
+            <!-- Slide 5: Badminton -->
+            <div class="hero-slide">
+                <img class="hero-slide-img" src="images/badminton.jpg" alt="Badminton" loading="lazy">
+                <div class="hero-content">
+                    <div class="hero-badge">🏸 Mumbai's #1 Sports Booking Platform</div>
+                    <h1 class="hero-title">Smash the Game.<br><span class="accent">Book Your Court!</span></h1>
+                    <p class="hero-sub">Premium badminton courts with floodlights and amenities. Book your slot in under 60 seconds.</p>
+                    <div class="hero-buttons">
+                        <button class="hero-btn-primary" onclick="document.getElementById('search-bar').scrollIntoView({behavior:'smooth'})">🔍 Find a Ground</button>
+                        <button class="hero-btn-ghost" onclick="document.getElementById('sports-section').scrollIntoView({behavior:'smooth'})">🏅 Explore Sports</button>
+                    </div>
+                </div>
+                <span class="hero-slide-tag">BADMINTON</span>
+            </div>
+
+        </div><!-- /.hero-slider -->
+    </div><!-- /.hero-scroll -->
+
+    <!-- Slide Dots -->
+    <div class="hero-dots">
+        <button class="hero-dot active" data-slide="0"></button>
+        <button class="hero-dot" data-slide="1"></button>
+        <button class="hero-dot" data-slide="2"></button>
+        <button class="hero-dot" data-slide="3"></button>
+        <button class="hero-dot" data-slide="4"></button>
+    </div>
+</section>
+
+<!-- ============================================================
+     SEARCH BAR
+     ============================================================ -->
+<div class="search-bar-wrapper" id="search-bar">
+    <div class="search-bar">
+        <div class="search-field">
+            <label>SELECT SPORT</label>
+            <select id="search-sport">
+                <option value="all">All Sports</option>
+                <option value="Cricket">🏏 Cricket</option>
+                <option value="Football">⚽ Football</option>
+                <option value="Badminton">🏸 Badminton</option>
+                <option value="Kabaddi">🤼 Kabaddi</option>
+                <option value="Chess">♟️ Chess</option>
+            </select>
+        </div>
+        <div class="search-divider"></div>
+        <div class="search-field">
+            <label>SELECT LOCATION</label>
+            <select id="search-location">
+                <option value="all">All Mumbai Areas</option>
+                <option value="Dadar">Dadar</option>
+                <option value="Andheri">Andheri</option>
+                <option value="Borivali">Borivali</option>
+                <option value="Bandra">Bandra</option>
+                <option value="Kurla">Kurla</option>
+                <option value="Powai">Powai</option>
+                <option value="Ghatkopar">Ghatkopar</option>
+                <option value="Mulund">Mulund</option>
+                <option value="Vile Parle">Vile Parle</option>
+                <option value="Chembur">Chembur</option>
+                <option value="Kandivali">Kandivali</option>
+                <option value="Goregaon">Goregaon</option>
+                <option value="Lower Parel">Lower Parel</option>
+                <option value="Thane">Thane</option>
+                <option value="Navi Mumbai">Navi Mumbai</option>
+            </select>
+        </div>
+        <div class="search-divider"></div>
+        <div class="search-field">
+            <label>SELECT DATE 📅</label>
+            <input type="date" id="search-date">
+        </div>
+        <button class="search-btn" id="hero-search-btn">🔍 Search Grounds</button>
+    </div>
+</div>
+
+<!-- ============================================================
+     SECTION 1 — POPULAR SPORTS
+     ============================================================ -->
+<section class="sports-section" id="sports-section">
+    <div class="container">
+        <div class="section-header fade-up">
+            <p class="section-eyebrow">What do you want to play?</p>
+            <h2 class="section-title">Popular Sports in Mumbai</h2>
+            <p class="section-sub">From cricket fields to chess halls — find venues for every sport across the city.</p>
+        </div>
+        <div class="sports-grid" id="sports-grid">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 2 — POPULAR GROUNDS
+     ============================================================ -->
+<section class="venues-section" id="venues-section">
+    <div class="container">
+        <div class="section-header fade-up">
+            <p class="section-eyebrow">Demo venue data — not real listings</p>
+            <h2 class="section-title">Popular Grounds in Mumbai</h2>
+            <p class="section-sub">Discover top-rated sports venues across every neighbourhood in Mumbai.</p>
+        </div>
+
+        <!-- Filter buttons -->
+        <div class="venues-controls">
+            <button class="filter-btn active" data-sport="All">All Sports</button>
+            <button class="filter-btn" data-sport="Cricket">🏏 Cricket</button>
+            <button class="filter-btn" data-sport="Football">⚽ Football</button>
+            <button class="filter-btn" data-sport="Badminton">🏸 Badminton</button>
+            <button class="filter-btn" data-sport="Kabaddi">🤼 Kabaddi</button>
+            <button class="filter-btn" data-sport="Chess">♟️ Chess</button>
+        </div>
+
+        <div class="venues-grid" id="venues-grid">
+            <!-- Rendered by JS -->
+        </div>
+
+        <div class="load-more-wrap">
+            <button class="btn-load-more" onclick="window.location.href='venues.html'">View All Venues →</button>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 3 — SMART AVAILABILITY
+     ============================================================ -->
+<section class="availability-section" id="availability">
+    <div class="container">
+        <div class="section-header fade-up">
+            <p class="section-eyebrow">Real-time slot tracking</p>
+            <h2 class="section-title">Smart Availability System</h2>
+            <p class="section-sub">See exactly which time slots are available, partially booked, or full — before you decide.</p>
+        </div>
+
+        <div class="availability-demo fade-up">
+            <div class="avail-header">
+                <div class="avail-venue-info">
+                    <h3>Dadar Multi-Sports Arena</h3>
+                    <p>📅 28 September 2026 &nbsp;|&nbsp; 📍 Dadar, Mumbai</p>
+                </div>
+                <div class="avail-sport-tabs">
+                    <button class="sport-tab active" data-sport="Cricket">🏏 Cricket</button>
+                    <button class="sport-tab" data-sport="Football">⚽ Football</button>
+                    <button class="sport-tab" data-sport="Badminton">🏸 Badminton</button>
+                </div>
+            </div>
+
+            <div class="avail-legend">
+                <span class="legend-item"><span class="legend-dot ld-available"></span> Available</span>
+                <span class="legend-item"><span class="legend-dot ld-partial"></span> Partially Available</span>
+                <span class="legend-item"><span class="legend-dot ld-booked"></span> Fully Booked</span>
+                <span class="legend-item"><span class="legend-dot ld-unavailable"></span> Unavailable</span>
+            </div>
+
+            <div class="slots-grid" id="slots-grid">
+                <!-- Rendered by JS -->
+            </div>
+
+            <div style="margin-top:20px;text-align:center;">
+                <button class="btn-primary" id="book-selected-slot" disabled onclick="bookSelectedSlot()" style="padding:12px 28px;border:none;border-radius:12px;">
+                    Select a slot above to book
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4 — MULTI-SPORT GROUND
+     ============================================================ -->
+<section class="multisport-section" id="multisport">
+    <div class="container">
+        <div class="section-header fade-up">
+            <p class="section-eyebrow">Multiple sports, one venue</p>
+            <h2 class="section-title">Multi-Sport Ground Support</h2>
+            <p class="section-sub">Large grounds can host multiple sports simultaneously. Book a specific area without affecting others.</p>
+        </div>
+
+        <div class="multisport-grid fade-up">
+            <div class="multisport-info">
+                <h3>Dadar Multi-Sports Arena</h3>
+                <p>This venue supports 3 simultaneous sport activities. While one team plays cricket on the pitch, another can book the football field — all at the same time.</p>
+                <div class="capacity-badge">⚡ 3 Simultaneous Activities Supported</div>
+                <p style="color:var(--gray-light);font-size:14px;line-height:1.8;">
+                    ✓ Each sport/area has independent booking availability<br>
+                    ✓ One booked sport does NOT block others<br>
+                    ✓ Real-time status per court/field/pitch
+                </p>
+            </div>
+
+            <div class="timeline-card">
+                <div class="timeline-header">
+                    🕕 Today's Ground Activity — 6:00 PM Snapshot
+                </div>
+                <div class="timeline-row">
+                    <div>
+                        <div class="timeline-area">Football Field A</div>
+                        <div class="timeline-sport">Football · 6:00 PM – 7:00 PM</div>
+                    </div>
+                    <span class="timeline-badge tb-available">AVAILABLE</span>
+                </div>
+                <div class="timeline-row">
+                    <div>
+                        <div class="timeline-area">Cricket Pitch</div>
+                        <div class="timeline-sport">Cricket · 6:00 PM – 8:00 PM</div>
+                    </div>
+                    <span class="timeline-badge tb-booked">BOOKED</span>
+                </div>
+                <div class="timeline-row">
+                    <div>
+                        <div class="timeline-area">Badminton Court 1</div>
+                        <div class="timeline-sport">Badminton · 6:00 PM – 7:00 PM</div>
+                    </div>
+                    <span class="timeline-badge tb-available">AVAILABLE</span>
+                </div>
+                <div class="timeline-row">
+                    <div>
+                        <div class="timeline-area">Badminton Court 2</div>
+                        <div class="timeline-sport">Badminton · 6:00 PM – 7:00 PM</div>
+                    </div>
+                    <span class="timeline-badge tb-partial">PARTIAL</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 5 — WHY KHELOINDIA
+     ============================================================ -->
+<section class="why-section" id="about">
+    <div class="container">
+        <div class="section-header fade-up">
+            <p class="section-eyebrow">Why choose us</p>
+            <h2 class="section-title">Why KheloIndia?</h2>
+            <p class="section-sub">Built for Mumbai sports lovers — fast, simple and reliable.</p>
+        </div>
+        <div class="why-grid">
+            <div class="why-card fade-up">
+                <span class="why-icon">⚡</span>
+                <h3>Easy Booking</h3>
+                <p>Book any sports ground in Mumbai in under 60 seconds. Select your sport, date, time slot — done.</p>
+            </div>
+            <div class="why-card fade-up">
+                <span class="why-icon">📊</span>
+                <h3>Real-time Availability</h3>
+                <p>See live slot status — green for available, orange for partial, red for booked. No surprises at the ground.</p>
+            </div>
+            <div class="why-card fade-up">
+                <span class="why-icon">🏟️</span>
+                <h3>Multiple Sports</h3>
+                <p>Cricket, Football, Badminton, Kabaddi, Chess and more. One platform for all your sports needs.</p>
+            </div>
+            <div class="why-card fade-up">
+                <span class="why-icon">✅</span>
+                <h3>Verified Venues</h3>
+                <p>All venue information is verified. See real ratings, amenities, photos and pricing before you book.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 6 — STATS
+     ============================================================ -->
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item fade-up">
+                <div class="stat-number" data-target="15" data-suffix="+">15+</div>
+                <div class="stat-label">Sports Grounds</div>
+            </div>
+            <div class="stat-item fade-up">
+                <div class="stat-number" data-target="8" data-suffix="+">8+</div>
+                <div class="stat-label">Sports</div>
+            </div>
+            <div class="stat-item fade-up">
+                <div class="stat-number" data-target="100" data-suffix="+">100+</div>
+                <div class="stat-label">Daily Slots</div>
+            </div>
+            <div class="stat-item fade-up">
+                <div class="stat-number" data-target="500" data-suffix="+">500+</div>
+                <div class="stat-label">Bookings</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 7 — MAP-STYLE VENUE DISCOVERY
+     ============================================================ -->
+<section class="map-section">
+    <div class="container">
+        <div class="section-header fade-up">
+            <p class="section-eyebrow">Venues near you</p>
+            <h2 class="section-title">Mumbai Sports Grounds Near You</h2>
+            <p class="section-sub">Grounds across every neighbourhood. Tap an area to explore venues.</p>
+        </div>
+        <div class="map-pins-grid fade-up">
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Dadar'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Dadar</div>
+                <div class="pin-count">2 venues</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Andheri'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Andheri</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Bandra'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Bandra</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Borivali'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Borivali</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Powai'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Powai</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Kurla'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Kurla</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Ghatkopar'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Ghatkopar</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Kandivali'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Kandivali</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Lower Parel'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Lower Parel</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+            <div class="map-pin-card" onclick="window.location.href='venues.html?location=Navi Mumbai'">
+                <div class="pin-icon">📍</div>
+                <div class="pin-area">Navi Mumbai</div>
+                <div class="pin-count">1 venue</div>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:32px;">
+            <button class="btn-load-more" onclick="window.location.href='venues.html'">View All Areas on Map →</button>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     CTA SECTION
+     ============================================================ -->
+<section class="cta-section">
+    <div class="container">
+        <h2>Ready to Play?</h2>
+        <p>Join thousands of players booking Mumbai's best sports grounds every day. Find your ground. Play your game.</p>
+        <div class="cta-buttons">
+            <button class="cta-btn-primary" onclick="window.location.href='venues.html'">🔍 Find a Ground</button>
+            <button class="cta-btn-secondary" onclick="showAuthModal('signup')">📋 Create Account</button>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <div class="logo-icon">🏃</div>
+                    <span class="logo-text">Khelo<span>India</span></span>
+                </div>
+                <p class="footer-tagline">Find. Book. Play.<br>Mumbai's premier sports ground booking platform. Discover venues for cricket, football, badminton, kabaddi and more.</p>
+                <div class="footer-socials">
+                    <a class="social-btn" href="#" title="Instagram">📷</a>
+                    <a class="social-btn" href="#" title="Twitter / X">🐦</a>
+                    <a class="social-btn" href="#" title="YouTube">▶️</a>
+                    <a class="social-btn" href="#" title="Facebook">📘</a>
+                    <a class="social-btn" href="#" title="LinkedIn">💼</a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="venues.html">🏟️ Venues</a></li>
+                    <li><a href="index.html#sports-section">🏅 Sports</a></li>
+                    <li><a href="index.html#events">📅 Events</a></li>
+                    <li><a href="my-bookings.html">📋 My Bookings</a></li>
+                    <li><a href="index.html#about">ℹ️ About</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Sports</h4>
+                <ul class="footer-links">
+                    <li><a href="venues.html?sport=Cricket">🏏 Cricket</a></li>
+                    <li><a href="venues.html?sport=Football">⚽ Football</a></li>
+                    <li><a href="venues.html?sport=Badminton">🏸 Badminton</a></li>
+                    <li><a href="venues.html?sport=Kabaddi">🤼 Kabaddi</a></li>
+                    <li><a href="venues.html?sport=Chess">♟️ Chess</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col footer-contact">
+                <h4>Contact</h4>
+                <p>✉️ hello@kheloindia.demo</p>
+                <p>📞 +91 98765 43210</p>
+                <p>📍 Mumbai, Maharashtra, India</p>
+                <div class="footer-disclaimer">
+                    ⚠️ College Demo Project. All venue data is fictional. Payment processing is simulated — no real money is involved.
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 KheloIndia. College Group Project — Academic Demo Only.</p>
+            <p style="color:var(--gray-slot);font-size:12px;">Built with HTML, CSS, JavaScript & Node.js + MySQL</p>
+        </div>
+    </div>
+</footer>
+
+<!-- ============================================================
+     VENUE DETAILS MODAL
+     ============================================================ -->
+<div class="modal-overlay" id="venue-modal-overlay">
+    <div class="modal" id="venue-modal">
+        <button class="modal-close" onclick="closeVenueModal()">✕</button>
+        <img class="modal-img" id="modal-img" src="" alt="">
+        <div class="modal-body">
+            <h2 class="modal-venue-name" id="modal-name"></h2>
+            <p class="modal-location" id="modal-location"></p>
+
+            <div class="modal-meta-row">
+                <div class="modal-meta-item"><strong>Rating</strong><span id="modal-rating"></span></div>
+                <div class="modal-meta-item"><strong>Price</strong><span id="modal-price"></span></div>
+                <div class="modal-meta-item"><strong>Hours</strong><span id="modal-hours"></span></div>
+                <div class="modal-meta-item"><strong>Sports</strong><span id="modal-sports-list"></span></div>
+            </div>
+
+            <p class="modal-section-title">Amenities</p>
+            <div class="amenities-grid" id="modal-amenities"></div>
+
+            <p class="modal-section-title">Book a Slot</p>
+            <div class="modal-slots-select">
+                <select id="modal-sport-select" style="padding:10px 14px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);flex:1;outline:none;"></select>
+            </div>
+            <div class="slots-grid" id="modal-slots-grid" style="grid-template-columns:1fr;"></div>
+
+            <p class="modal-section-title">Reviews</p>
+            <div id="modal-reviews"></div>
+
+            <button class="modal-book-btn" id="modal-book-btn">Book This Venue</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     BOOKING MODAL (5-step flow)
+     ============================================================ -->
+<div class="booking-modal-overlay" id="booking-modal-overlay">
+    <div class="booking-modal" id="booking-modal">
+        <!-- Processing overlay -->
+        <div class="processing-overlay" id="processing-overlay">
+            <div class="spinner"></div>
+            <span class="processing-text">Processing your demo payment...</span>
+        </div>
+
+        <div class="booking-modal-header">
+            <h2>Book a Ground</h2>
+            <button class="modal-close" style="position:relative;top:auto;right:auto;" onclick="closeBookingModal()">✕</button>
+        </div>
+
+        <!-- Step indicators -->
+        <div class="booking-steps">
+            <div class="step active"><div class="step-num">1</div><span class="step-label">Sport</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">2</div><span class="step-label">Date</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">3</div><span class="step-label">Time</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">4</div><span class="step-label">Summary</span></div>
+            <div class="step-connector"></div>
+            <div class="step"><div class="step-num">5</div><span class="step-label">Pay</span></div>
+        </div>
+
+        <div class="booking-modal-body" id="booking-modal-body">
+            <!-- Rendered by JS -->
+        </div>
+
+        <div class="booking-modal-footer" id="booking-modal-footer">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     AUTH MODAL (simple placeholder)
+     ============================================================ -->
+<div class="modal-overlay" id="auth-modal-overlay">
+    <div class="modal" style="max-width:440px;">
+        <button class="modal-close" onclick="closeAuthModal()">✕</button>
+        <div class="modal-body" id="auth-modal-body"></div>
+    </div>
+</div>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+    // ── Book selected slot from availability section ──────────
+    function bookSelectedSlot() {
+        if (!selectedSlotData) return;
+        const venue = KI.venues.find(v => v.name === selectedSlotData.venueName);
+        if (venue) startBooking(venue.id);
+    }
+
+    // ── Auth Modal ────────────────────────────────────────────
+    function showAuthModal(mode) {
+        const overlay = document.getElementById('auth-modal-overlay');
+        const body    = document.getElementById('auth-modal-body');
+
+        if (mode === 'login') {
+            body.innerHTML = `
+                <h2 style="font-size:22px;font-weight:900;margin-bottom:8px;">Welcome Back</h2>
+                <p style="color:var(--gray-light);font-size:13px;margin-bottom:24px;">Login to access your bookings.</p>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <input type="email" placeholder="Email address" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
+                    <input type="password" placeholder="Password" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
+                    <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;" onclick="demoLogin()">Login</button>
+                    <p style="text-align:center;font-size:13px;color:var(--gray-light);">Don't have an account? <a href="#" onclick="showAuthModal('signup')" style="color:var(--green);">Sign up</a></p>
+                </div>
+            `;
+        } else {
+            body.innerHTML = `
+                <h2 style="font-size:22px;font-weight:900;margin-bottom:8px;">Create Account</h2>
+                <p style="color:var(--gray-light);font-size:13px;margin-bottom:24px;">Join KheloIndia and start booking.</p>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <input type="text" placeholder="Full name" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
+                    <input type="email" placeholder="Email address" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
+                    <input type="tel" placeholder="Phone number" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
+                    <input type="password" placeholder="Password" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
+                    <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;" onclick="demoRegister()">Create Account</button>
+                    <p style="text-align:center;font-size:13px;color:var(--gray-light);">Already have an account? <a href="#" onclick="showAuthModal('login')" style="color:var(--green);">Login</a></p>
+                </div>
+            `;
+        }
+
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAuthModal() {
+        document.getElementById('auth-modal-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function demoLogin() {
+        closeAuthModal();
+        showToast('Demo login successful! Welcome back. 👋', 'success');
+    }
+
+    function demoRegister() {
+        closeAuthModal();
+        showToast('Account created! Welcome to KheloIndia. 🎉', 'success');
+    }
+</script>
+
+</body>
+</html>
