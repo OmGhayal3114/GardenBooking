@@ -632,14 +632,92 @@
 </div>
 
 <!-- ============================================================
-     AUTH MODAL (simple placeholder)
+<!-- ============================================================
+     AUTH MODAL — User Login / Register / Admin Login
      ============================================================ -->
-<div class="modal-overlay" id="auth-modal-overlay">
-    <div class="modal" style="max-width:440px;">
+<div class="modal-overlay" id="auth-modal-overlay" onclick="closeAuthModal(event)">
+    <div class="modal" style="max-width:460px;" onclick="event.stopPropagation()">
         <button class="modal-close" onclick="closeAuthModal()">✕</button>
-        <div class="modal-body" id="auth-modal-body"></div>
+
+        <!-- Tabs -->
+        <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:24px;">
+            <button id="tab-login"    class="auth-tab active" onclick="switchAuthTab('login')">User Login</button>
+            <button id="tab-register" class="auth-tab"        onclick="switchAuthTab('register')">Register</button>
+            <button id="tab-admin"    class="auth-tab"        onclick="switchAuthTab('admin')">
+                🔒 Admin
+            </button>
+        </div>
+
+        <!-- User Login -->
+        <div id="auth-login" class="auth-panel">
+            <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">Welcome Back 👋</h2>
+            <p style="color:var(--gray-light);font-size:13px;margin-bottom:20px;">Login to manage your bookings.</p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <input id="login-email"    type="email"    placeholder="Email address"    class="auth-input">
+                <input id="login-password" type="password" placeholder="Password"          class="auth-input">
+                <div id="login-error" style="color:var(--red);font-size:12px;display:none;"></div>
+                <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;width:100%;"
+                    onclick="doUserLogin()">Login</button>
+                <p style="text-align:center;font-size:13px;color:var(--gray-light);">
+                    Don't have an account? <a href="#" onclick="switchAuthTab('register')" style="color:var(--green);">Sign up</a>
+                </p>
+                <p style="text-align:center;font-size:11px;color:var(--gray-mid);">
+                    Demo: arjun@demo.com / demo123
+                </p>
+            </div>
+        </div>
+
+        <!-- User Register -->
+        <div id="auth-register" class="auth-panel" style="display:none;">
+            <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">Create Account 🎉</h2>
+            <p style="color:var(--gray-light);font-size:13px;margin-bottom:20px;">Join KheloIndia and start booking.</p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <input id="reg-name"     type="text"     placeholder="Full name"       class="auth-input">
+                <input id="reg-email"    type="email"    placeholder="Email address"   class="auth-input">
+                <input id="reg-phone"    type="tel"      placeholder="Phone number"    class="auth-input">
+                <input id="reg-password" type="password" placeholder="Password (min 6 chars)" class="auth-input">
+                <div id="reg-error" style="color:var(--red);font-size:12px;display:none;"></div>
+                <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;width:100%;"
+                    onclick="doUserRegister()">Create Account</button>
+                <p style="text-align:center;font-size:13px;color:var(--gray-light);">
+                    Already have an account? <a href="#" onclick="switchAuthTab('login')" style="color:var(--green);">Login</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Admin Login -->
+        <div id="auth-admin" class="auth-panel" style="display:none;">
+            <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">⚙️ Admin Access</h2>
+            <p style="color:var(--gray-light);font-size:13px;margin-bottom:20px;">Login to manage venues, bookings and users.</p>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+                <input id="admin-email"    type="email"    placeholder="Admin email"    class="auth-input">
+                <input id="admin-password" type="password" placeholder="Admin password" class="auth-input">
+                <div id="admin-error" style="color:var(--red);font-size:12px;display:none;"></div>
+                <button class="btn-next" style="padding:14px;border-radius:12px;background:#7c3aed;border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;width:100%;"
+                    onclick="doAdminLogin()">Login as Admin</button>
+                <p style="text-align:center;font-size:11px;color:var(--gray-mid);">
+                    Demo: admin@kheloindia.com / admin123
+                </p>
+            </div>
+        </div>
+
     </div>
 </div>
+
+<style>
+.auth-tab {
+    flex:1; padding:12px; background:none; border:none; border-bottom:2px solid transparent;
+    color:var(--gray-light); font-size:13px; font-weight:700; cursor:pointer;
+    transition:all var(--transition); font-family:var(--font);
+}
+.auth-tab.active { color:var(--green); border-bottom-color:var(--green); }
+.auth-input {
+    padding:12px 16px; background:var(--dark-3); border:1px solid var(--border);
+    border-radius:12px; color:var(--white); font-size:14px; outline:none;
+    transition:border-color var(--transition); font-family:var(--font); width:100%; box-sizing:border-box;
+}
+.auth-input:focus { border-color:var(--green); }
+</style>
 
 <!-- ============================================================
      SCRIPTS
@@ -656,54 +734,217 @@
 
     // ── Auth Modal ────────────────────────────────────────────
     function showAuthModal(mode) {
-        const overlay = document.getElementById('auth-modal-overlay');
-        const body    = document.getElementById('auth-modal-body');
-
-        if (mode === 'login') {
-            body.innerHTML = `
-                <h2 style="font-size:22px;font-weight:900;margin-bottom:8px;">Welcome Back</h2>
-                <p style="color:var(--gray-light);font-size:13px;margin-bottom:24px;">Login to access your bookings.</p>
-                <div style="display:flex;flex-direction:column;gap:14px;">
-                    <input type="email" placeholder="Email address" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
-                    <input type="password" placeholder="Password" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
-                    <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;" onclick="demoLogin()">Login</button>
-                    <p style="text-align:center;font-size:13px;color:var(--gray-light);">Don't have an account? <a href="#" onclick="showAuthModal('signup')" style="color:var(--green);">Sign up</a></p>
-                </div>
-            `;
-        } else {
-            body.innerHTML = `
-                <h2 style="font-size:22px;font-weight:900;margin-bottom:8px;">Create Account</h2>
-                <p style="color:var(--gray-light);font-size:13px;margin-bottom:24px;">Join KheloIndia and start booking.</p>
-                <div style="display:flex;flex-direction:column;gap:14px;">
-                    <input type="text" placeholder="Full name" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
-                    <input type="email" placeholder="Email address" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
-                    <input type="tel" placeholder="Phone number" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
-                    <input type="password" placeholder="Password" style="padding:12px 16px;background:var(--dark-3);border:1px solid var(--border);border-radius:12px;color:var(--white);font-size:14px;outline:none;">
-                    <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;" onclick="demoRegister()">Create Account</button>
-                    <p style="text-align:center;font-size:13px;color:var(--gray-light);">Already have an account? <a href="#" onclick="showAuthModal('login')" style="color:var(--green);">Login</a></p>
-                </div>
-            `;
-        }
-
-        overlay.classList.add('open');
+        switchAuthTab(mode === 'signup' ? 'register' : (mode || 'login'));
+        document.getElementById('auth-modal-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
     }
 
-    function closeAuthModal() {
+    function closeAuthModal(e) {
+        if (e && e.target !== document.getElementById('auth-modal-overlay')) return;
         document.getElementById('auth-modal-overlay').classList.remove('open');
         document.body.style.overflow = '';
     }
 
-    function demoLogin() {
-        closeAuthModal();
-        showToast('Demo login successful! Welcome back. 👋', 'success');
+    function switchAuthTab(tab) {
+        ['login','register','admin'].forEach(t => {
+            document.getElementById('auth-' + t).style.display = 'none';
+            document.getElementById('tab-'  + t).classList.remove('active');
+        });
+        document.getElementById('auth-' + tab).style.display = 'block';
+        document.getElementById('tab-'  + tab).classList.add('active');
+        // Show modal if not already open
+        document.getElementById('auth-modal-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
     }
 
-    function demoRegister() {
-        closeAuthModal();
-        showToast('Account created! Welcome to KheloIndia. 🎉', 'success');
+    // ── Navbar auth state ─────────────────────────────────────
+    function refreshNavAuth() {
+        const user  = JSON.parse(localStorage.getItem('ki_user')  || 'null');
+        const admin = JSON.parse(localStorage.getItem('ki_admin') || 'null');
+        const actions = document.querySelector('.nav-actions');
+        if (admin) {
+            actions.innerHTML = `
+                <a href="admin/index.html" class="btn-ghost" style="color:#a78bfa;">⚙️ Admin Panel</a>
+                <button class="btn-primary" onclick="doLogout()">Logout</button>`;
+        } else if (user) {
+            actions.innerHTML = `
+                <span style="font-size:13px;color:var(--gray-light);">👤 ${user.name.split(' ')[0]}</span>
+                <a href="my-bookings.html" class="btn-ghost">My Bookings</a>
+                <button class="btn-primary" onclick="doLogout()">Logout</button>`;
+        }
     }
+
+    function doLogout() {
+        localStorage.removeItem('ki_user');
+        localStorage.removeItem('ki_token');
+        localStorage.removeItem('ki_admin');
+        localStorage.removeItem('ki_admin_token');
+        showToast('Logged out successfully.', 'info');
+        refreshNavAuth();
+        setTimeout(() => location.reload(), 800);
+    }
+
+    // ── User Login ────────────────────────────────────────────
+    async function doUserLogin() {
+        const email    = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const errEl    = document.getElementById('login-error');
+        errEl.style.display = 'none';
+
+        if (!email || !password) {
+            errEl.textContent = 'Please fill in all fields.';
+            errEl.style.display = 'block'; return;
+        }
+
+        // Try real backend first
+        try {
+            const res  = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('ki_user',  JSON.stringify(data.user));
+                localStorage.setItem('ki_token', data.token);
+                closeAuthModal();
+                showToast(`Welcome back, ${data.user.name.split(' ')[0]}! 👋`, 'success');
+                refreshNavAuth();
+                return;
+            } else {
+                // Backend connected but wrong creds
+                errEl.textContent = data.message || 'Invalid email or password.';
+                errEl.style.display = 'block'; return;
+            }
+        } catch (e) {
+            // Backend offline — use demo fallback
+        }
+
+        // Demo fallback
+        const demoUsers = [
+            { id:1, name:'Arjun Sharma',  email:'arjun@demo.com',  password:'demo123' },
+            { id:2, name:'Priya Mehta',   email:'priya@demo.com',  password:'demo123' },
+            { id:3, name:'Rohan Patil',   email:'rohan@demo.com',  password:'demo123' },
+        ];
+        const found = demoUsers.find(u => u.email === email && u.password === password);
+        if (found) {
+            const { password: _, ...user } = found;
+            localStorage.setItem('ki_user',  JSON.stringify(user));
+            localStorage.setItem('ki_token', 'demo-token-' + user.id);
+            closeAuthModal();
+            showToast(`Welcome back, ${user.name.split(' ')[0]}! 👋 (Demo Mode)`, 'success');
+            refreshNavAuth();
+        } else {
+            errEl.textContent = 'Invalid credentials. Demo: arjun@demo.com / demo123';
+            errEl.style.display = 'block';
+        }
+    }
+
+    // ── User Register ─────────────────────────────────────────
+    async function doUserRegister() {
+        const name     = document.getElementById('reg-name').value.trim();
+        const email    = document.getElementById('reg-email').value.trim();
+        const phone    = document.getElementById('reg-phone').value.trim();
+        const password = document.getElementById('reg-password').value;
+        const errEl    = document.getElementById('reg-error');
+        errEl.style.display = 'none';
+
+        if (!name || !email || !password) {
+            errEl.textContent = 'Name, email and password are required.';
+            errEl.style.display = 'block'; return;
+        }
+        if (password.length < 6) {
+            errEl.textContent = 'Password must be at least 6 characters.';
+            errEl.style.display = 'block'; return;
+        }
+
+        // Try real backend
+        try {
+            const res  = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('ki_user',  JSON.stringify(data.user));
+                localStorage.setItem('ki_token', data.token);
+                closeAuthModal();
+                showToast(`Account created! Welcome, ${name.split(' ')[0]}! 🎉`, 'success');
+                refreshNavAuth();
+                return;
+            } else {
+                errEl.textContent = data.message || 'Registration failed.';
+                errEl.style.display = 'block'; return;
+            }
+        } catch (e) {
+            // Demo fallback
+        }
+
+        // Demo fallback — save to localStorage
+        const user = { id: Date.now(), name, email, phone };
+        localStorage.setItem('ki_user',  JSON.stringify(user));
+        localStorage.setItem('ki_token', 'demo-token-' + user.id);
+        closeAuthModal();
+        showToast(`Welcome to KheloIndia, ${name.split(' ')[0]}! 🎉 (Demo Mode)`, 'success');
+        refreshNavAuth();
+    }
+
+    // ── Admin Login ───────────────────────────────────────────
+    async function doAdminLogin() {
+        const email    = document.getElementById('admin-email').value.trim();
+        const password = document.getElementById('admin-password').value;
+        const errEl    = document.getElementById('admin-error');
+        errEl.style.display = 'none';
+
+        if (!email || !password) {
+            errEl.textContent = 'Please fill in all fields.';
+            errEl.style.display = 'block'; return;
+        }
+
+        // Try real backend
+        try {
+            const res  = await fetch('/api/auth/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                localStorage.setItem('ki_admin',       JSON.stringify(data.admin));
+                localStorage.setItem('ki_admin_token', data.token);
+                closeAuthModal();
+                showToast('Admin access granted! Redirecting...', 'success');
+                refreshNavAuth();
+                setTimeout(() => window.location.href = 'admin/index.html', 800);
+                return;
+            } else {
+                errEl.textContent = data.message || 'Invalid admin credentials.';
+                errEl.style.display = 'block'; return;
+            }
+        } catch (e) {
+            // Demo fallback
+        }
+
+        // Demo fallback
+        if (email === 'admin@kheloindia.com' && password === 'admin123') {
+            const admin = { id:1, username:'superadmin', email };
+            localStorage.setItem('ki_admin',       JSON.stringify(admin));
+            localStorage.setItem('ki_admin_token', 'demo-admin-token');
+            closeAuthModal();
+            showToast('Admin access granted! (Demo Mode) Redirecting...', 'success');
+            refreshNavAuth();
+            setTimeout(() => window.location.href = 'admin/index.html', 800);
+        } else {
+            errEl.textContent = 'Invalid credentials. Demo: admin@kheloindia.com / admin123';
+            errEl.style.display = 'block';
+        }
+    }
+
+    // ── Init on page load ────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', refreshNavAuth);
 </script>
 
 </body>
 </html>
+
