@@ -678,9 +678,6 @@
                 <p style="text-align:center;font-size:13px;margin-top:16px;color:var(--gray-light);">
                     New here? <a href="#" onclick="switchAuthTab('register')" style="color:var(--green);font-weight:700;">Create account</a>
                 </p>
-                <div style="margin-top:16px;padding:10px 14px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:10px;">
-                    <p style="font-size:11px;color:var(--gray-mid);margin:0;">🧪 <strong style="color:var(--gray-light);">Demo credentials:</strong> arjun@demo.com / demo123</p>
-                </div>
             </div>
 
             <!-- ── Register ── -->
@@ -712,9 +709,6 @@
                     <input id="admin-password" type="password" placeholder="🔑  Admin password" class="ki-input admin-input">
                     <div id="admin-error" class="ki-error"></div>
                     <button class="ki-btn-purple" onclick="doAdminLogin()">Login as Admin →</button>
-                </div>
-                <div style="margin-top:16px;padding:10px 14px;background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;">
-                    <p style="font-size:11px;color:var(--gray-mid);margin:0;">🧪 <strong style="color:var(--gray-light);">Demo:</strong> admin@kheloindia.com / admin123</p>
                 </div>
             </div>
 
@@ -964,7 +958,7 @@
         localStorage.setItem('ki_token', 'demo-token-' + user.id);
         document.getElementById('auth-modal-overlay').classList.remove('open');
         document.body.style.overflow = '';
-        showToast(`Welcome, ${name.split(' ')[0]}! 🎉 (Demo Mode)`, 'success');
+        showToast(`Welcome, ${name.split(' ')[0]}! 🎉 `, 'success');
         refreshNavAuth();
     }
 

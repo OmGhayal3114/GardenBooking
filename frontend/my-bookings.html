@@ -26,9 +26,9 @@
         <li><a href="my-bookings.html" class="active">📋 My Bookings</a></li>
         <li><a href="index.html#about">ℹ️ About</a></li>
     </ul>
-    <div class="nav-actions">
-        <button class="btn-ghost">Login</button>
-        <button class="btn-primary">Sign Up</button>
+    <div class="nav-actions" id="nav-actions">
+        <button class="btn-ghost" onclick="window.location.href='index.html'">Login</button>
+        <button class="btn-primary" onclick="window.location.href='index.html'">Sign Up</button>
     </div>
     <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
 </nav>
@@ -37,7 +37,7 @@
     <a href="venues.html">🏟️ Venues</a>
     <a href="my-bookings.html">📋 My Bookings</a>
     <div class="divider"></div>
-    <button class="btn-primary">Login / Sign Up</button>
+    <button class="btn-primary" onclick="window.location.href='index.html'">Login / Sign Up</button>
 </div>
 
 <!-- My Bookings -->
@@ -71,36 +71,54 @@
 <footer class="footer">
     <div class="container">
         <div class="footer-bottom" style="border-top:none;padding-top:0;">
-            <p>© 2026 KheloIndia — College Demo Project</p>
+            <p>© 2026 KheloIndia — Sports Booking Platform</p>
             <a href="index.html" style="color:var(--green);font-size:14px;font-weight:600;">← Back to Home</a>
         </div>
     </div>
 </footer>
 
+<!-- Cancel Confirm Dialog -->
+<div class="modal-overlay" id="cancel-overlay" style="display:none;z-index:1000;">
+    <div style="background:var(--dark-2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:380px;width:90%;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
+        <h3 style="margin-bottom:8px;font-size:18px;">Cancel Booking?</h3>
+        <p style="color:var(--gray-light);font-size:14px;margin-bottom:24px;">This action cannot be undone. Your slot will be released.</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button onclick="closeCancelDialog()" style="padding:12px 24px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--white);font-size:14px;font-weight:700;cursor:pointer;">Keep Booking</button>
+            <button id="confirm-cancel-btn" onclick="confirmCancel()" style="padding:12px 24px;border-radius:12px;border:none;background:var(--red);color:white;font-size:14px;font-weight:700;cursor:pointer;">Yes, Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
 <script>
-// ── Sport emoji map
-const sportEmojis = {
-    Cricket:'🏏', Football:'⚽', Badminton:'🏸', Kabaddi:'🤼', Chess:'♟️'
-};
+const sportEmojis = { Cricket:'🏏', Football:'⚽', Badminton:'🏸', Kabaddi:'🤼', Chess:'♟️' };
 
-// ── Load bookings from localStorage
-let allBookings = [];
+let allBookings  = [];
+let currentFilter = 'all';
+let pendingCancelId = null;
+
+// ── Default bookings (used only if nothing is stored) ──────────
+const defaultBookings = [
+    { id:'KI-2026-0001', venue:'Dadar Multi-Sports Arena',  area:'Dadar',   sport:'Cricket',  date:'28 Sep 2026', time:'7:00 AM – 8:00 AM',  amount:800,  status:'CONFIRMED', txn:'KI-TXN-001' },
+    { id:'KI-2026-0002', venue:'Bandra Grounds Complex',    area:'Bandra',  sport:'Cricket',  date:'28 Sep 2026', time:'6:00 PM – 7:00 PM',  amount:1200, status:'CONFIRMED', txn:'KI-TXN-002' },
+    { id:'KI-2026-0003', venue:'Andheri Sports Hub',        area:'Andheri', sport:'Football', date:'25 Sep 2026', time:'7:00 AM – 8:00 AM',  amount:900,  status:'COMPLETED', txn:'KI-TXN-003' },
+    { id:'KI-2026-0004', venue:'Powai Sports Galaxy',       area:'Powai',   sport:'Football', date:'22 Sep 2026', time:'6:00 PM – 7:00 PM',  amount:800,  status:'CANCELLED', txn:'KI-TXN-004' },
+];
+
+function saveBookings() {
+    localStorage.setItem('ki_bookings', JSON.stringify(allBookings));
+}
 
 function loadBookings() {
-    const stored = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
-
-    // Add demo bookings if empty
-    if (stored.length === 0) {
-        allBookings = [
-            { id:'KI-2026-0001', venue:'Dadar Multi-Sports Arena',  area:'Dadar',  sport:'Cricket',   date:'28 Sep 2026', time:'7:00 AM – 8:00 AM',   amount:800,  status:'CONFIRMED',  txn:'DEMO-KI-2026-001' },
-            { id:'KI-2026-0002', venue:'Bandra Grounds Complex',    area:'Bandra', sport:'Cricket',   date:'28 Sep 2026', time:'6:00 PM – 7:00 PM',   amount:1200, status:'CONFIRMED',  txn:'DEMO-KI-2026-004' },
-            { id:'KI-2026-0003', venue:'Andheri Sports Hub',        area:'Andheri',sport:'Football',  date:'25 Sep 2026', time:'7:00 AM – 8:00 AM',   amount:900,  status:'COMPLETED',  txn:'DEMO-KI-2026-005' },
-            { id:'KI-2026-0004', venue:'Dadar Multi-Sports Arena',  area:'Dadar',  sport:'Football',  date:'22 Sep 2026', time:'6:00 PM – 7:00 PM',   amount:800,  status:'CANCELLED',  txn:'DEMO-KI-2026-007' },
-        ];
+    const stored = localStorage.getItem('ki_bookings');
+    if (stored) {
+        allBookings = JSON.parse(stored);
     } else {
-        allBookings = stored;
+        // First time — seed the defaults and save them
+        allBookings = [...defaultBookings];
+        saveBookings();
     }
 }
 
@@ -122,16 +140,15 @@ function renderBookings(list) {
                 <h3>${b.venue}</h3>
                 <p>📍 ${b.area || 'Mumbai'} &nbsp;|&nbsp; 🏅 ${b.sport}</p>
                 <p>📅 ${b.date} &nbsp;|&nbsp; ⏰ ${b.time}</p>
-                <p style="font-size:12px;color:var(--gray-mid);margin-top:4px;">TXN: ${b.txn}</p>
+                <p style="font-size:12px;color:var(--gray-mid);margin-top:4px;">Booking ID: ${b.id}</p>
             </div>
             <div class="booking-meta">
                 <span class="booking-status status-${b.status.toLowerCase()}">${b.status}</span>
                 <span class="booking-amount">₹${b.amount.toLocaleString('en-IN')}</span>
-                <span class="booking-ref">${b.id}</span>
             </div>
             <div class="booking-actions">
-                <button class="btn-sm" onclick="showBookingDetail('${b.id}')">View</button>
-                ${b.status === 'CONFIRMED' ? `<button class="btn-sm btn-sm-danger" onclick="cancelBookingDemo('${b.id}')">Cancel</button>` : ''}
+                <button class="btn-sm" onclick="showBookingDetail('${b.id}')">Details</button>
+                ${b.status === 'CONFIRMED' ? `<button class="btn-sm btn-sm-danger" onclick="openCancelDialog('${b.id}')">Cancel</button>` : ''}
             </div>
         </div>
     `).join('');
@@ -142,52 +159,105 @@ function renderBookings(list) {
 }
 
 function filterBookings(status, btn) {
+    currentFilter = status;
     document.querySelectorAll('.bookings-tab').forEach(t => t.classList.remove('active'));
     if (btn) btn.classList.add('active');
-
     const filtered = status === 'all' ? allBookings : allBookings.filter(b => b.status === status);
     renderBookings(filtered);
 }
 
-function cancelBookingDemo(id) {
-    if (!confirm('Cancel this booking? This action cannot be undone.')) return;
+// ── Cancel dialog ──────────────────────────────────────────────
+function openCancelDialog(id) {
+    pendingCancelId = id;
+    const overlay = document.getElementById('cancel-overlay');
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+}
 
-    const booking = allBookings.find(b => b.id === id);
-    if (booking) {
-        booking.status = 'CANCELLED';
-        // Update localStorage
-        const stored = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
-        const storedIdx = stored.findIndex(b => b.id === id);
-        if (storedIdx !== -1) { stored[storedIdx].status = 'CANCELLED'; localStorage.setItem('ki_bookings', JSON.stringify(stored)); }
+function closeCancelDialog() {
+    document.getElementById('cancel-overlay').style.display = 'none';
+    pendingCancelId = null;
+}
 
-        showToast('Booking cancelled. Demo refund initiated.', 'info');
-        filterBookings('all', null);
-        document.querySelector('.bookings-tab').classList.add('active');
+function confirmCancel() {
+    if (!pendingCancelId) return;
+    const id = pendingCancelId;
+    closeCancelDialog();
+
+    const idx = allBookings.findIndex(b => b.id === id);
+    if (idx === -1) return;
+
+    // Try backend cancel
+    const token = localStorage.getItem('ki_token');
+    if (token && !token.startsWith('demo-')) {
+        fetch(`/api/bookings/${id}/cancel`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        }).catch(() => {});
     }
+
+    // Immediately remove from the list and save
+    allBookings.splice(idx, 1);
+    saveBookings();
+
+    showToast('Booking cancelled successfully.', 'info');
+    filterBookings(currentFilter, document.querySelector(`.bookings-tab.active`));
 }
 
 function showBookingDetail(id) {
     const b = allBookings.find(b => b.id === id);
     if (!b) return;
-    showToast(`${b.id} — ${b.venue} — ${b.sport} — ${b.date}`, 'info');
+    showToast(`${b.id} — ${b.venue} | ${b.sport} | ${b.date}`, 'info');
 }
 
-// ── Init
+// ── Navbar auth state ──────────────────────────────────────────
+function refreshNavAuth() {
+    const user  = JSON.parse(localStorage.getItem('ki_user')  || 'null');
+    const admin = JSON.parse(localStorage.getItem('ki_admin') || 'null');
+    const actions = document.getElementById('nav-actions');
+    if (!actions) return;
+    const displayName = user ? (user.full_name || user.name || 'User') : '';
+    if (admin) {
+        actions.innerHTML = `
+            <a href="admin/index.html" class="btn-ghost" style="color:#a78bfa;">⚙️ Admin</a>
+            <button class="btn-primary" onclick="doLogout()">Logout</button>`;
+    } else if (user) {
+        actions.innerHTML = `
+            <span style="font-size:13px;color:var(--gray-light);">👤 ${displayName.split(' ')[0]}</span>
+            <button class="btn-primary" onclick="doLogout()">Logout</button>`;
+    }
+}
+
+function doLogout() {
+    localStorage.removeItem('ki_user');
+    localStorage.removeItem('ki_token');
+    localStorage.removeItem('ki_admin');
+    localStorage.removeItem('ki_admin_token');
+    showToast('Logged out successfully.', 'info');
+    setTimeout(() => window.location.href = 'index.html', 600);
+}
+
+// ── Init ──────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     loadBookings();
     renderBookings(allBookings);
+    refreshNavAuth();
 
-    // Navbar scroll
     window.addEventListener('scroll', () => {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
     });
 
-    // Hamburger
     const ham = document.getElementById('hamburger');
     const mob = document.getElementById('mobile-menu');
     ham.addEventListener('click', () => {
         ham.classList.toggle('open');
         mob.classList.toggle('open');
+    });
+
+    // Close cancel dialog on overlay click
+    document.getElementById('cancel-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeCancelDialog();
     });
 });
 </script>
