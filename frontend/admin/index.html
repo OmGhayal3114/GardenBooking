@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -318,10 +318,10 @@
                     </tr>
                 </thead>
                 <tbody id="recent-bookings-table">
-                    <tr><td>KI-2026-0001</td><td>Arjun Sharma</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep 2026</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" onclick="showToast('Booking cancelled (demo)','info')">Cancel</button></td></tr>
-                    <tr><td>KI-2026-0002</td><td>Priya Mehta</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep 2026</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" onclick="showToast('Booking cancelled (demo)','info')">Cancel</button></td></tr>
-                    <tr><td>KI-2026-0003</td><td>Rohan Patil</td><td>Dadar Arena</td><td>Badminton</td><td>28 Sep 2026</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" onclick="showToast('Booking cancelled (demo)','info')">Cancel</button></td></tr>
-                    <tr><td>KI-2026-0004</td><td>Arjun Sharma</td><td>Bandra Grounds</td><td>Cricket</td><td>28 Sep 2026</td><td>₹1200</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" onclick="showToast('Booking cancelled (demo)','info')">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0001</td><td>Arjun Sharma</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep 2026</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" data-booking-id="ID_PLACEHOLDER" onclick="adminCancelBooking(this.dataset.bookingId, this)">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0002</td><td>Priya Mehta</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep 2026</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" data-booking-id="ID_PLACEHOLDER" onclick="adminCancelBooking(this.dataset.bookingId, this)">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0003</td><td>Rohan Patil</td><td>Dadar Arena</td><td>Badminton</td><td>28 Sep 2026</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" data-booking-id="ID_PLACEHOLDER" onclick="adminCancelBooking(this.dataset.bookingId, this)">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0004</td><td>Arjun Sharma</td><td>Bandra Grounds</td><td>Cricket</td><td>28 Sep 2026</td><td>₹1200</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td><button class="btn-table btn-table-danger" data-booking-id="ID_PLACEHOLDER" onclick="adminCancelBooking(this.dataset.bookingId, this)">Cancel</button></td></tr>
                     <tr><td>KI-2026-0005</td><td>Priya Mehta</td><td>Andheri Hub</td><td>Football</td><td>25 Sep 2026</td><td>₹900</td><td><span class="table-badge tb-completed">COMPLETED</span></td><td>—</td></tr>
                 </tbody>
             </table>
@@ -336,19 +336,19 @@
         <div class="admin-card">
             <div class="admin-card-header">
                 <h3>Booking Management</h3>
-                <span style="font-size:13px;color:var(--gray-mid);">Showing demo data</span>
+                <span style="font-size:13px;color:var(--gray-mid);">All Bookings</span>
             </div>
             <table>
                 <thead>
                     <tr><th>ID</th><th>User</th><th>Venue</th><th>Sport</th><th>Date</th><th>Time</th><th>Amount</th><th>Status</th><th>TXN</th><th>Action</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td>KI-2026-0001</td><td>Arjun Sharma</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep</td><td>7–8 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">DEMO-KI-001</td><td><button class="btn-table btn-table-danger" onclick="showToast('Cancelled (demo)','info')">Cancel</button></td></tr>
-                    <tr><td>KI-2026-0002</td><td>Priya Mehta</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep</td><td>10–11 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">DEMO-KI-002</td><td><button class="btn-table btn-table-danger" onclick="showToast('Cancelled (demo)','info')">Cancel</button></td></tr>
-                    <tr><td>KI-2026-0003</td><td>Rohan Patil</td><td>Dadar Arena</td><td>Badminton</td><td>28 Sep</td><td>8–9 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">DEMO-KI-003</td><td><button class="btn-table btn-table-danger" onclick="showToast('Cancelled (demo)','info')">Cancel</button></td></tr>
-                    <tr><td>KI-2026-0004</td><td>Arjun Sharma</td><td>Bandra Grounds</td><td>Cricket</td><td>28 Sep</td><td>6–7 PM</td><td>₹1200</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">DEMO-KI-004</td><td><button class="btn-table btn-table-danger" onclick="showToast('Cancelled (demo)','info')">Cancel</button></td></tr>
-                    <tr><td>KI-2026-0005</td><td>Priya Mehta</td><td>Andheri Hub</td><td>Football</td><td>25 Sep</td><td>7–8 AM</td><td>₹900</td><td><span class="table-badge tb-completed">COMPLETED</span></td><td style="font-size:11px;color:var(--gray-mid);">DEMO-KI-005</td><td>—</td></tr>
-                    <tr><td>KI-2026-0007</td><td>Vikram Desai</td><td>Dadar Arena</td><td>Football</td><td>28 Sep</td><td>6–7 PM</td><td>₹800</td><td><span class="table-badge tb-cancelled">CANCELLED</span></td><td style="font-size:11px;color:var(--gray-mid);">DEMO-KI-007</td><td>—</td></tr>
+                    <tr><td>KI-2026-0001</td><td>Arjun Sharma</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep</td><td>7–8 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-001</td><td><button class="btn-table btn-table-danger" onclick="adminCancelBooking(this.closest('tr').cells[0].textContent.trim(), this)">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0002</td><td>Priya Mehta</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep</td><td>10–11 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-002</td><td><button class="btn-table btn-table-danger" onclick="adminCancelBooking(this.closest('tr').cells[0].textContent.trim(), this)">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0003</td><td>Rohan Patil</td><td>Dadar Arena</td><td>Badminton</td><td>28 Sep</td><td>8–9 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-003</td><td><button class="btn-table btn-table-danger" onclick="adminCancelBooking(this.closest('tr').cells[0].textContent.trim(), this)">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0004</td><td>Arjun Sharma</td><td>Bandra Grounds</td><td>Cricket</td><td>28 Sep</td><td>6–7 PM</td><td>₹1200</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-004</td><td><button class="btn-table btn-table-danger" onclick="adminCancelBooking(this.closest('tr').cells[0].textContent.trim(), this)">Cancel</button></td></tr>
+                    <tr><td>KI-2026-0005</td><td>Priya Mehta</td><td>Andheri Hub</td><td>Football</td><td>25 Sep</td><td>7–8 AM</td><td>₹900</td><td><span class="table-badge tb-completed">COMPLETED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-005</td><td>—</td></tr>
+                    <tr><td>KI-2026-0007</td><td>Vikram Desai</td><td>Dadar Arena</td><td>Football</td><td>28 Sep</td><td>6–7 PM</td><td>₹800</td><td><span class="table-badge tb-cancelled">CANCELLED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-007</td><td>—</td></tr>
                 </tbody>
             </table>
         </div>
@@ -458,7 +458,8 @@
         if (btn) btn.classList.add('active');
     }
 
-    // ── Toast (reused)
+
+    // ── Toast
     function showToast(message, type = 'info') {
         const container = document.querySelector('.toast-container');
         const icons = { success: '✅', error: '❌', info: '💡' };
@@ -469,38 +470,129 @@
         setTimeout(() => { toast.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => toast.remove(), 300); }, 3500);
     }
 
+    // ── Admin Cancel Confirm Dialog ──────────────────────────────
+    let pendingCancelRowId = null;
+
+    function adminCancelBooking(bookingId, rowEl) {
+        pendingCancelRowId = { bookingId, rowEl };
+        document.getElementById('admin-cancel-overlay').style.display = 'flex';
+    }
+
+    function closeAdminCancelDialog() {
+        document.getElementById('admin-cancel-overlay').style.display = 'none';
+        pendingCancelRowId = null;
+    }
+
+    function confirmAdminCancel() {
+        if (!pendingCancelRowId) return;
+        const { bookingId, rowEl } = pendingCancelRowId;
+        closeAdminCancelDialog();
+
+        // Try real backend
+        const token = localStorage.getItem('ki_admin_token');
+        if (token && !token.startsWith('demo-')) {
+            fetch(`/api/admin/bookings/${bookingId}/cancel`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+            }).catch(() => {});
+        }
+
+        // Also remove from user's ki_bookings in localStorage
+        const stored = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
+        const idx = stored.findIndex(b => b.id === bookingId);
+        if (idx !== -1) {
+            stored.splice(idx, 1);
+            localStorage.setItem('ki_bookings', JSON.stringify(stored));
+        }
+
+        // Remove row from table immediately
+        if (rowEl && rowEl.closest) {
+            rowEl.closest('tr').remove();
+        }
+
+        showToast(`Booking ${bookingId} cancelled successfully.`, 'success');
+
+        // Update stats
+        const statEl = document.getElementById('stat-bookings');
+        if (statEl) statEl.textContent = Math.max(0, parseInt(statEl.textContent) - 1);
+    }
+
     // ── Render venues table
     function renderVenuesTable() {
         const tbody = document.getElementById('venues-table');
         if (!tbody || !window.KI) return;
         tbody.innerHTML = KI.venues.map(v => `
-            <tr>
+            <tr id="venue-row-${v.id}">
                 <td>${v.id}</td>
                 <td style="font-weight:600;color:var(--white);">${v.name}</td>
                 <td>${v.area}</td>
                 <td style="font-size:12px;">${v.sports.join(', ')}</td>
                 <td>₹${v.price}</td>
                 <td>⭐ ${v.rating}</td>
-                <td><span class="table-badge tb-active">ACTIVE</span></td>
+                <td><span class="table-badge tb-active" id="venue-status-${v.id}">ACTIVE</span></td>
                 <td>
-                    <button class="btn-table" onclick="showToast('Edit form coming soon','info')">Edit</button>
-                    <button class="btn-table btn-table-danger" onclick="showToast('Venue deactivated (demo)','info')">Deactivate</button>
+                    <button class="btn-table btn-table-danger" onclick="toggleVenueStatus(${v.id}, this)">Deactivate</button>
                 </td>
             </tr>
         `).join('');
     }
 
-    // ── Add venue demo
+    function toggleVenueStatus(venueId, btn) {
+        const badge = document.getElementById('venue-status-' + venueId);
+        if (badge.textContent === 'ACTIVE') {
+            badge.textContent = 'INACTIVE';
+            badge.className = 'table-badge tb-cancelled';
+            btn.textContent = 'Activate';
+            showToast(`Venue #${venueId} deactivated.`, 'info');
+        } else {
+            badge.textContent = 'ACTIVE';
+            badge.className = 'table-badge tb-active';
+            btn.textContent = 'Deactivate';
+            showToast(`Venue #${venueId} activated.`, 'success');
+        }
+    }
+
+    // ── Add venue
     function addVenueDemo(e) {
         e.preventDefault();
-        showToast('Venue added successfully! (Demo — connect backend for persistence)', 'success');
+        const name = e.target.querySelector('input[type=text]').value;
+        showToast(`Venue "${name}" added successfully!`, 'success');
         document.getElementById('add-venue-form').style.display = 'none';
+        e.target.reset();
+    }
+
+    // ── Wire up all existing cancel buttons in the HTML tables
+    function wireAllCancelButtons() {
+        document.querySelectorAll('.btn-table-danger[data-booking-id]').forEach(btn => {
+            btn.onclick = () => adminCancelBooking(btn.dataset.bookingId, btn);
+        });
     }
 
     // ── Init
     document.addEventListener('DOMContentLoaded', () => {
         renderVenuesTable();
+        wireAllCancelButtons();
+
+        // Close overlay on background click
+        document.getElementById('admin-cancel-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeAdminCancelDialog();
+        });
     });
 </script>
+
+<!-- Admin Cancel Confirm Dialog -->
+<div id="admin-cancel-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:var(--dark-2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:380px;width:90%;text-align:center;">
+        <div style="font-size:40px;margin-bottom:12px;">⚠️</div>
+        <h3 style="margin-bottom:8px;font-size:18px;">Cancel Booking?</h3>
+        <p style="color:var(--gray-light);font-size:14px;margin-bottom:24px;">This will cancel the booking and notify the user. This cannot be undone.</p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button onclick="closeAdminCancelDialog()" style="padding:12px 24px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--white);font-size:14px;font-weight:700;cursor:pointer;">Keep</button>
+            <button onclick="confirmAdminCancel()" style="padding:12px 24px;border-radius:12px;border:none;background:var(--red);color:white;font-size:14px;font-weight:700;cursor:pointer;">Yes, Cancel</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
+

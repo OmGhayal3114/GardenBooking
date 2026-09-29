@@ -734,6 +734,24 @@ function showBookingConfirmation() {
     });
     localStorage.setItem('ki_bookings', JSON.stringify(bookings));
 
+    // ── Mark slot as booked in live data so it shows red immediately ──
+    if (currentBooking.sport && slot) {
+        const venueData = KI.venues.find(x => x.id === v.id);
+        if (venueData && venueData.slots && venueData.slots[currentBooking.sport]) {
+            const slotEntry = venueData.slots[currentBooking.sport].find(s => s.time === slot.time);
+            if (slotEntry) slotEntry.status = 'booked';
+        }
+        // Also persist booked slots to localStorage so page refresh keeps them
+        const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
+        bookedSlots.push({ venueId: v.id, sport: currentBooking.sport, time: slot.time });
+        localStorage.setItem('ki_booked_slots', JSON.stringify(bookedSlots));
+    }
+
+    // Re-render the homepage slots section if visible
+    if (typeof renderSlots === 'function') {
+        try { renderSlots(currentBooking.sport || 'Cricket'); } catch(e) {}
+    }
+
     showToast('Booking confirmed! 🎉', 'success');
 }
 
@@ -758,6 +776,16 @@ function initVenueFilters() {
 /* ── Initialize on DOM Ready ─────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
     if (window.KI) {
+        // ── Restore booked slots from localStorage (persist across refresh) ──
+        const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
+        bookedSlots.forEach(({ venueId, sport, time }) => {
+            const venueData = KI.venues.find(v => v.id === venueId);
+            if (venueData && venueData.slots && venueData.slots[sport]) {
+                const slotEntry = venueData.slots[sport].find(s => s.time === time);
+                if (slotEntry) slotEntry.status = 'booked';
+            }
+        });
+
         renderSportCards();
         renderHomeVenues();
         renderSlots('Cricket');
