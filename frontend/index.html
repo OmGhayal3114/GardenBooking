@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -633,90 +633,170 @@
 
 <!-- ============================================================
 <!-- ============================================================
-     AUTH MODAL — User Login / Register / Admin Login
+     AUTH MODAL — Redesigned: clean, spacious, 3 tabs
      ============================================================ -->
 <div class="modal-overlay" id="auth-modal-overlay" onclick="closeAuthModal(event)">
-    <div class="modal" style="max-width:460px;" onclick="event.stopPropagation()">
-        <button class="modal-close" onclick="closeAuthModal()">✕</button>
-
-        <!-- Tabs -->
-        <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:24px;">
-            <button id="tab-login"    class="auth-tab active" onclick="switchAuthTab('login')">User Login</button>
-            <button id="tab-register" class="auth-tab"        onclick="switchAuthTab('register')">Register</button>
-            <button id="tab-admin"    class="auth-tab"        onclick="switchAuthTab('admin')">
-                🔒 Admin
-            </button>
+    <div id="auth-modal-box" onclick="event.stopPropagation()" style="
+        background:var(--dark-2);
+        border:1px solid var(--border);
+        border-radius:20px;
+        width:90%;
+        max-width:440px;
+        padding:0;
+        overflow:hidden;
+        position:relative;
+        box-shadow:0 24px 64px rgba(0,0,0,0.6);
+        animation: modalIn 0.25s ease;
+    ">
+        <!-- Header bar with tabs + close -->
+        <div style="display:flex;align-items:center;border-bottom:1px solid var(--border);background:var(--dark-3);">
+            <button id="tab-login"    class="ki-auth-tab active" onclick="switchAuthTab('login')">Login</button>
+            <button id="tab-register" class="ki-auth-tab"        onclick="switchAuthTab('register')">Register</button>
+            <button id="tab-admin"    class="ki-auth-tab admin-tab" onclick="switchAuthTab('admin')">Admin 🔒</button>
+            <button onclick="closeAuthModal()" style="
+                margin-left:auto; margin-right:12px;
+                background:rgba(255,255,255,0.08); border:none;
+                width:30px; height:30px; border-radius:50%;
+                color:var(--gray-light); font-size:16px; cursor:pointer;
+                flex-shrink:0; display:flex; align-items:center; justify-content:center;
+            ">✕</button>
         </div>
 
-        <!-- User Login -->
-        <div id="auth-login" class="auth-panel">
-            <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">Welcome Back 👋</h2>
-            <p style="color:var(--gray-light);font-size:13px;margin-bottom:20px;">Login to manage your bookings.</p>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <input id="login-email"    type="email"    placeholder="Email address"    class="auth-input">
-                <input id="login-password" type="password" placeholder="Password"          class="auth-input">
-                <div id="login-error" style="color:var(--red);font-size:12px;display:none;"></div>
-                <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;width:100%;"
-                    onclick="doUserLogin()">Login</button>
-                <p style="text-align:center;font-size:13px;color:var(--gray-light);">
-                    Don't have an account? <a href="#" onclick="switchAuthTab('register')" style="color:var(--green);">Sign up</a>
+        <!-- Content panels -->
+        <div style="padding:32px;">
+
+            <!-- ── User Login ── -->
+            <div id="auth-login" class="ki-auth-panel">
+                <p style="font-size:24px;font-weight:900;margin:0 0 4px;">Welcome back 👋</p>
+                <p style="font-size:13px;color:var(--gray-light);margin:0 0 24px;">Sign in to manage your bookings.</p>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <input id="login-email"    type="email"    placeholder="📧  Email address" class="ki-input">
+                    <input id="login-password" type="password" placeholder="🔑  Password"      class="ki-input">
+                    <div id="login-error" class="ki-error"></div>
+                    <button class="ki-btn-green" onclick="doUserLogin()">Login →</button>
+                </div>
+                <p style="text-align:center;font-size:13px;margin-top:16px;color:var(--gray-light);">
+                    New here? <a href="#" onclick="switchAuthTab('register')" style="color:var(--green);font-weight:700;">Create account</a>
                 </p>
-                <p style="text-align:center;font-size:11px;color:var(--gray-mid);">
-                    Demo: arjun@demo.com / demo123
+                <div style="margin-top:16px;padding:10px 14px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:10px;">
+                    <p style="font-size:11px;color:var(--gray-mid);margin:0;">🧪 <strong style="color:var(--gray-light);">Demo credentials:</strong> arjun@demo.com / demo123</p>
+                </div>
+            </div>
+
+            <!-- ── Register ── -->
+            <div id="auth-register" class="ki-auth-panel" style="display:none;">
+                <p style="font-size:24px;font-weight:900;margin:0 0 4px;">Create account 🎉</p>
+                <p style="font-size:13px;color:var(--gray-light);margin:0 0 24px;">Join KheloIndia and start booking.</p>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <input id="reg-name"     type="text"     placeholder="👤  Full name"         class="ki-input">
+                    <input id="reg-email"    type="email"    placeholder="📧  Email address"      class="ki-input">
+                    <input id="reg-phone"    type="tel"      placeholder="📱  Phone (optional)"   class="ki-input">
+                    <input id="reg-password" type="password" placeholder="🔑  Password (min 6)"   class="ki-input">
+                    <div id="reg-error" class="ki-error"></div>
+                    <button class="ki-btn-green" onclick="doUserRegister()">Create Account →</button>
+                </div>
+                <p style="text-align:center;font-size:13px;margin-top:16px;color:var(--gray-light);">
+                    Already have an account? <a href="#" onclick="switchAuthTab('login')" style="color:var(--green);font-weight:700;">Login</a>
                 </p>
             </div>
-        </div>
 
-        <!-- User Register -->
-        <div id="auth-register" class="auth-panel" style="display:none;">
-            <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">Create Account 🎉</h2>
-            <p style="color:var(--gray-light);font-size:13px;margin-bottom:20px;">Join KheloIndia and start booking.</p>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <input id="reg-name"     type="text"     placeholder="Full name"       class="auth-input">
-                <input id="reg-email"    type="email"    placeholder="Email address"   class="auth-input">
-                <input id="reg-phone"    type="tel"      placeholder="Phone number"    class="auth-input">
-                <input id="reg-password" type="password" placeholder="Password (min 6 chars)" class="auth-input">
-                <div id="reg-error" style="color:var(--red);font-size:12px;display:none;"></div>
-                <button class="btn-next" style="padding:14px;border-radius:12px;background:var(--green);border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;width:100%;"
-                    onclick="doUserRegister()">Create Account</button>
-                <p style="text-align:center;font-size:13px;color:var(--gray-light);">
-                    Already have an account? <a href="#" onclick="switchAuthTab('login')" style="color:var(--green);">Login</a>
-                </p>
+            <!-- ── Admin Login ── -->
+            <div id="auth-admin" class="ki-auth-panel" style="display:none;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                    <div style="width:36px;height:36px;background:rgba(124,58,237,0.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">⚙️</div>
+                    <p style="font-size:22px;font-weight:900;margin:0;">Admin Access</p>
+                </div>
+                <p style="font-size:13px;color:var(--gray-light);margin:0 0 24px;">Restricted to authorised personnel only.</p>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <input id="admin-email"    type="email"    placeholder="📧  Admin email"    class="ki-input admin-input">
+                    <input id="admin-password" type="password" placeholder="🔑  Admin password" class="ki-input admin-input">
+                    <div id="admin-error" class="ki-error"></div>
+                    <button class="ki-btn-purple" onclick="doAdminLogin()">Login as Admin →</button>
+                </div>
+                <div style="margin-top:16px;padding:10px 14px;background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:10px;">
+                    <p style="font-size:11px;color:var(--gray-mid);margin:0;">🧪 <strong style="color:var(--gray-light);">Demo:</strong> admin@kheloindia.com / admin123</p>
+                </div>
             </div>
-        </div>
 
-        <!-- Admin Login -->
-        <div id="auth-admin" class="auth-panel" style="display:none;">
-            <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">⚙️ Admin Access</h2>
-            <p style="color:var(--gray-light);font-size:13px;margin-bottom:20px;">Login to manage venues, bookings and users.</p>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-                <input id="admin-email"    type="email"    placeholder="Admin email"    class="auth-input">
-                <input id="admin-password" type="password" placeholder="Admin password" class="auth-input">
-                <div id="admin-error" style="color:var(--red);font-size:12px;display:none;"></div>
-                <button class="btn-next" style="padding:14px;border-radius:12px;background:#7c3aed;border:none;color:white;font-size:15px;font-weight:700;cursor:pointer;width:100%;"
-                    onclick="doAdminLogin()">Login as Admin</button>
-                <p style="text-align:center;font-size:11px;color:var(--gray-mid);">
-                    Demo: admin@kheloindia.com / admin123
-                </p>
-            </div>
         </div>
-
     </div>
 </div>
 
 <style>
-.auth-tab {
-    flex:1; padding:12px; background:none; border:none; border-bottom:2px solid transparent;
-    color:var(--gray-light); font-size:13px; font-weight:700; cursor:pointer;
-    transition:all var(--transition); font-family:var(--font);
+@keyframes modalIn {
+    from { opacity:0; transform: scale(0.95) translateY(-10px); }
+    to   { opacity:1; transform: scale(1)    translateY(0); }
 }
-.auth-tab.active { color:var(--green); border-bottom-color:var(--green); }
-.auth-input {
-    padding:12px 16px; background:var(--dark-3); border:1px solid var(--border);
-    border-radius:12px; color:var(--white); font-size:14px; outline:none;
-    transition:border-color var(--transition); font-family:var(--font); width:100%; box-sizing:border-box;
+.ki-auth-tab {
+    padding: 14px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--gray-mid);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.2s;
+    white-space: nowrap;
 }
-.auth-input:focus { border-color:var(--green); }
+.ki-auth-tab:hover { color: var(--white); }
+.ki-auth-tab.active { color: var(--green); border-bottom-color: var(--green); }
+.ki-auth-tab.admin-tab.active { color: #a78bfa; border-bottom-color: #7c3aed; }
+.ki-input {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--dark-3);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    color: var(--white);
+    font-size: 14px;
+    font-family: var(--font);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+.ki-input:focus { border-color: var(--green); }
+.admin-input:focus { border-color: #7c3aed; }
+.ki-error {
+    color: var(--red);
+    font-size: 12px;
+    display: none;
+    padding: 8px 12px;
+    background: rgba(239,68,68,0.08);
+    border-radius: 8px;
+    border: 1px solid rgba(239,68,68,0.2);
+}
+.ki-btn-green {
+    width: 100%;
+    padding: 14px;
+    background: var(--green);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: opacity 0.2s, transform 0.1s;
+}
+.ki-btn-green:hover { opacity: 0.9; }
+.ki-btn-green:active { transform: scale(0.98); }
+.ki-btn-purple {
+    width: 100%;
+    padding: 14px;
+    background: #7c3aed;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: opacity 0.2s, transform 0.1s;
+}
+.ki-btn-purple:hover { opacity: 0.9; }
+.ki-btn-purple:active { transform: scale(0.98); }
 </style>
 
 <!-- ============================================================
@@ -735,11 +815,10 @@
     // ── Auth Modal ────────────────────────────────────────────
     function showAuthModal(mode) {
         switchAuthTab(mode === 'signup' ? 'register' : (mode || 'login'));
-        document.getElementById('auth-modal-overlay').classList.add('open');
-        document.body.style.overflow = 'hidden';
     }
 
     function closeAuthModal(e) {
+        // If called from overlay click, only close if clicking the overlay itself
         if (e && e.target !== document.getElementById('auth-modal-overlay')) return;
         document.getElementById('auth-modal-overlay').classList.remove('open');
         document.body.style.overflow = '';
@@ -752,7 +831,6 @@
         });
         document.getElementById('auth-' + tab).style.display = 'block';
         document.getElementById('tab-'  + tab).classList.add('active');
-        // Show modal if not already open
         document.getElementById('auth-modal-overlay').classList.add('open');
         document.body.style.overflow = 'hidden';
     }
@@ -762,13 +840,16 @@
         const user  = JSON.parse(localStorage.getItem('ki_user')  || 'null');
         const admin = JSON.parse(localStorage.getItem('ki_admin') || 'null');
         const actions = document.querySelector('.nav-actions');
+        if (!actions) return;
+        // Use full_name (from API) or name (from demo fallback)
+        const displayName = user ? (user.full_name || user.name || 'User') : '';
         if (admin) {
             actions.innerHTML = `
-                <a href="admin/index.html" class="btn-ghost" style="color:#a78bfa;">⚙️ Admin Panel</a>
+                <a href="admin/index.html" class="btn-ghost" style="color:#a78bfa;">⚙️ Admin</a>
                 <button class="btn-primary" onclick="doLogout()">Logout</button>`;
         } else if (user) {
             actions.innerHTML = `
-                <span style="font-size:13px;color:var(--gray-light);">👤 ${user.name.split(' ')[0]}</span>
+                <span style="font-size:13px;color:var(--gray-light);">👤 ${displayName.split(' ')[0]}</span>
                 <a href="my-bookings.html" class="btn-ghost">My Bookings</a>
                 <button class="btn-primary" onclick="doLogout()">Logout</button>`;
         }
@@ -780,8 +861,7 @@
         localStorage.removeItem('ki_admin');
         localStorage.removeItem('ki_admin_token');
         showToast('Logged out successfully.', 'info');
-        refreshNavAuth();
-        setTimeout(() => location.reload(), 800);
+        setTimeout(() => location.reload(), 600);
     }
 
     // ── User Login ────────────────────────────────────────────
@@ -796,7 +876,6 @@
             errEl.style.display = 'block'; return;
         }
 
-        // Try real backend first
         try {
             const res  = await fetch('/api/auth/login', {
                 method: 'POST',
@@ -807,35 +886,35 @@
             if (data.success) {
                 localStorage.setItem('ki_user',  JSON.stringify(data.user));
                 localStorage.setItem('ki_token', data.token);
-                closeAuthModal();
-                showToast(`Welcome back, ${data.user.name.split(' ')[0]}! 👋`, 'success');
+                document.getElementById('auth-modal-overlay').classList.remove('open');
+                document.body.style.overflow = '';
+                const name = (data.user.full_name || data.user.name || 'User').split(' ')[0];
+                showToast(`Welcome back, ${name}! 👋`, 'success');
                 refreshNavAuth();
                 return;
             } else {
-                // Backend connected but wrong creds
                 errEl.textContent = data.message || 'Invalid email or password.';
                 errEl.style.display = 'block'; return;
             }
-        } catch (e) {
-            // Backend offline — use demo fallback
-        }
+        } catch (e) { /* backend offline — try demo */ }
 
         // Demo fallback
         const demoUsers = [
-            { id:1, name:'Arjun Sharma',  email:'arjun@demo.com',  password:'demo123' },
-            { id:2, name:'Priya Mehta',   email:'priya@demo.com',  password:'demo123' },
-            { id:3, name:'Rohan Patil',   email:'rohan@demo.com',  password:'demo123' },
+            { id:1, full_name:'Arjun Sharma', email:'arjun@demo.com', password:'demo123' },
+            { id:2, full_name:'Priya Mehta',  email:'priya@demo.com', password:'demo123' },
+            { id:3, full_name:'Rohan Patil',  email:'rohan@demo.com', password:'demo123' },
         ];
         const found = demoUsers.find(u => u.email === email && u.password === password);
         if (found) {
             const { password: _, ...user } = found;
             localStorage.setItem('ki_user',  JSON.stringify(user));
             localStorage.setItem('ki_token', 'demo-token-' + user.id);
-            closeAuthModal();
-            showToast(`Welcome back, ${user.name.split(' ')[0]}! 👋 (Demo Mode)`, 'success');
+            document.getElementById('auth-modal-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+            showToast(`Welcome back, ${user.full_name.split(' ')[0]}! 👋`, 'success');
             refreshNavAuth();
         } else {
-            errEl.textContent = 'Invalid credentials. Demo: arjun@demo.com / demo123';
+            errEl.textContent = 'Invalid credentials. Try: arjun@demo.com / demo123';
             errEl.style.display = 'block';
         }
     }
@@ -858,35 +937,34 @@
             errEl.style.display = 'block'; return;
         }
 
-        // Try real backend
         try {
+            // Backend expects full_name
             const res  = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, phone, password })
+                body: JSON.stringify({ full_name: name, email, phone, password })
             });
             const data = await res.json();
             if (data.success) {
                 localStorage.setItem('ki_user',  JSON.stringify(data.user));
                 localStorage.setItem('ki_token', data.token);
-                closeAuthModal();
-                showToast(`Account created! Welcome, ${name.split(' ')[0]}! 🎉`, 'success');
+                document.getElementById('auth-modal-overlay').classList.remove('open');
+                document.body.style.overflow = '';
+                showToast(`Welcome to KheloIndia, ${name.split(' ')[0]}! 🎉`, 'success');
                 refreshNavAuth();
                 return;
             } else {
                 errEl.textContent = data.message || 'Registration failed.';
                 errEl.style.display = 'block'; return;
             }
-        } catch (e) {
-            // Demo fallback
-        }
+        } catch (e) { /* demo fallback */ }
 
-        // Demo fallback — save to localStorage
-        const user = { id: Date.now(), name, email, phone };
+        const user = { id: Date.now(), full_name: name, email, phone };
         localStorage.setItem('ki_user',  JSON.stringify(user));
         localStorage.setItem('ki_token', 'demo-token-' + user.id);
-        closeAuthModal();
-        showToast(`Welcome to KheloIndia, ${name.split(' ')[0]}! 🎉 (Demo Mode)`, 'success');
+        document.getElementById('auth-modal-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+        showToast(`Welcome, ${name.split(' ')[0]}! 🎉 (Demo Mode)`, 'success');
         refreshNavAuth();
     }
 
@@ -902,7 +980,6 @@
             errEl.style.display = 'block'; return;
         }
 
-        // Try real backend
         try {
             const res  = await fetch('/api/auth/admin/login', {
                 method: 'POST',
@@ -913,8 +990,9 @@
             if (data.success) {
                 localStorage.setItem('ki_admin',       JSON.stringify(data.admin));
                 localStorage.setItem('ki_admin_token', data.token);
-                closeAuthModal();
-                showToast('Admin access granted! Redirecting...', 'success');
+                document.getElementById('auth-modal-overlay').classList.remove('open');
+                document.body.style.overflow = '';
+                showToast('Admin access granted! Redirecting... ✅', 'success');
                 refreshNavAuth();
                 setTimeout(() => window.location.href = 'admin/index.html', 800);
                 return;
@@ -922,29 +1000,33 @@
                 errEl.textContent = data.message || 'Invalid admin credentials.';
                 errEl.style.display = 'block'; return;
             }
-        } catch (e) {
-            // Demo fallback
-        }
+        } catch (e) { /* demo fallback */ }
 
         // Demo fallback
         if (email === 'admin@kheloindia.com' && password === 'admin123') {
-            const admin = { id:1, username:'superadmin', email };
+            const admin = { id:1, name:'Admin KheloIndia', email };
             localStorage.setItem('ki_admin',       JSON.stringify(admin));
             localStorage.setItem('ki_admin_token', 'demo-admin-token');
-            closeAuthModal();
-            showToast('Admin access granted! (Demo Mode) Redirecting...', 'success');
+            document.getElementById('auth-modal-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+            showToast('Admin access granted! ✅ Redirecting...', 'success');
             refreshNavAuth();
             setTimeout(() => window.location.href = 'admin/index.html', 800);
         } else {
-            errEl.textContent = 'Invalid credentials. Demo: admin@kheloindia.com / admin123';
+            errEl.textContent = 'Wrong credentials. Demo: admin@kheloindia.com / admin123';
             errEl.style.display = 'block';
         }
     }
 
-    // ── Init on page load ────────────────────────────────────
+    // ── Close on ESC ─────────────────────────────────────────
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.getElementById('auth-modal-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    });
+
+    // ── Init ─────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', refreshNavAuth);
 </script>
-
-</body>
-</html>
 
