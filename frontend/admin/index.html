@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -342,7 +342,7 @@
                 <thead>
                     <tr><th>ID</th><th>User</th><th>Venue</th><th>Sport</th><th>Date</th><th>Time</th><th>Amount</th><th>Status</th><th>TXN</th><th>Action</th></tr>
                 </thead>
-                <tbody>
+                <tbody id="bookings-table-body">
                     <tr><td>KI-2026-0001</td><td>Arjun Sharma</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep</td><td>7–8 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-001</td><td><button class="btn-table btn-table-danger" onclick="adminCancelBooking(this.closest('tr').cells[0].textContent.trim(), this)">Cancel</button></td></tr>
                     <tr><td>KI-2026-0002</td><td>Priya Mehta</td><td>Dadar Arena</td><td>Cricket</td><td>28 Sep</td><td>10–11 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-002</td><td><button class="btn-table btn-table-danger" onclick="adminCancelBooking(this.closest('tr').cells[0].textContent.trim(), this)">Cancel</button></td></tr>
                     <tr><td>KI-2026-0003</td><td>Rohan Patil</td><td>Dadar Arena</td><td>Badminton</td><td>28 Sep</td><td>8–9 AM</td><td>₹800</td><td><span class="table-badge tb-confirmed">CONFIRMED</span></td><td style="font-size:11px;color:var(--gray-mid);">KI-TXN-003</td><td><button class="btn-table btn-table-danger" onclick="adminCancelBooking(this.closest('tr').cells[0].textContent.trim(), this)">Cancel</button></td></tr>
@@ -393,15 +393,15 @@
     <div class="admin-section" id="section-users">
         <div class="admin-topbar"><h1>User Management</h1></div>
         <div class="admin-card">
-            <div class="admin-card-header"><h3>Registered Users (Demo)</h3></div>
+            <div class="admin-card-header"><h3 id="users-table-title">Registered Users</h3></div>
             <table>
-                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Bookings</th></tr></thead>
-                <tbody>
-                    <tr><td>1</td><td>Arjun Sharma</td><td>arjun@demo.com</td><td>9876543210</td><td>01 Sep 2026</td><td>3</td></tr>
-                    <tr><td>2</td><td>Priya Mehta</td><td>priya@demo.com</td><td>9876543211</td><td>05 Sep 2026</td><td>2</td></tr>
-                    <tr><td>3</td><td>Rohan Patil</td><td>rohan@demo.com</td><td>9876543212</td><td>10 Sep 2026</td><td>2</td></tr>
-                    <tr><td>4</td><td>Sneha Joshi</td><td>sneha@demo.com</td><td>9876543213</td><td>15 Sep 2026</td><td>1</td></tr>
-                    <tr><td>5</td><td>Vikram Desai</td><td>vikram@demo.com</td><td>9876543214</td><td>20 Sep 2026</td><td>1</td></tr>
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead>
+                <tbody id="users-table-body">
+                    <tr><td>1</td><td>Arjun Sharma</td><td>arjun@demo.com</td><td>9876543210</td><td>01 Sep 2026</td></tr>
+                    <tr><td>2</td><td>Priya Mehta</td><td>priya@demo.com</td><td>9876543211</td><td>05 Sep 2026</td></tr>
+                    <tr><td>3</td><td>Rohan Patil</td><td>rohan@demo.com</td><td>9876543212</td><td>10 Sep 2026</td></tr>
+                    <tr><td>4</td><td>Sneha Joshi</td><td>sneha@demo.com</td><td>9876543213</td><td>15 Sep 2026</td></tr>
+                    <tr><td>5</td><td>Vikram Desai</td><td>vikram@demo.com</td><td>9876543214</td><td>20 Sep 2026</td></tr>
                 </tbody>
             </table>
         </div>
@@ -450,6 +450,15 @@
 
 <script src="../js/data.js"></script>
 <script>
+    // ── Auth Guard ──────────────────────────────────────────────────
+    (function authGuard() {
+        if (!localStorage.getItem('ki_admin')) {
+            window.location.href = '../index.html';
+        }
+    })();
+
+    const ADMIN_TOKEN = () => localStorage.getItem('ki_admin_token') || '';
+
     // ── Section navigation
     function showSection(name, btn) {
         document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
@@ -457,7 +466,6 @@
         document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
         if (btn) btn.classList.add('active');
     }
-
 
     // ── Toast
     function showToast(message, type = 'info') {
@@ -483,18 +491,19 @@
         pendingCancelRowId = null;
     }
 
-    function confirmAdminCancel() {
+    async function confirmAdminCancel() {
         if (!pendingCancelRowId) return;
         const { bookingId, rowEl } = pendingCancelRowId;
         closeAdminCancelDialog();
 
-        // Try real backend
-        const token = localStorage.getItem('ki_admin_token');
-        if (token && !token.startsWith('demo-')) {
-            fetch(`/api/admin/bookings/${bookingId}/cancel`, {
-                method: 'PUT',
-                headers: { 'Authorization': `Bearer ${token}` }
-            }).catch(() => {});
+        const token = ADMIN_TOKEN();
+        if (token) {
+            try {
+                await fetch(`/api/admin/bookings/${bookingId}/cancel`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+            } catch (_) { /* silently ignore network errors */ }
         }
 
         // Also remove from user's ki_bookings in localStorage
@@ -515,6 +524,135 @@
         // Update stats
         const statEl = document.getElementById('stat-bookings');
         if (statEl) statEl.textContent = Math.max(0, parseInt(statEl.textContent) - 1);
+    }
+
+    // ── Status badge helper
+    function statusBadge(status) {
+        const map = {
+            CONFIRMED: 'tb-confirmed',
+            COMPLETED: 'tb-completed',
+            CANCELLED: 'tb-cancelled',
+            PENDING:   'tb-confirmed'
+        };
+        const cls = map[status] || 'tb-completed';
+        return `<span class="table-badge ${cls}">${status}</span>`;
+    }
+
+    // ── Format date/time
+    function fmtDate(d) {
+        if (!d) return '—';
+        const dt = new Date(d);
+        return isNaN(dt) ? d : dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    function fmtTime(t) { return t ? t.substring(0, 5) : '—'; }
+
+    // ── Load Dashboard Stats ─────────────────────────────────────
+    async function loadStats() {
+        const token = ADMIN_TOKEN();
+        if (!token) return;
+        try {
+            const res = await fetch('/api/admin/stats', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            const s = data.stats || data;
+            if (s.total_users   != null) document.getElementById('stat-users').textContent    = s.total_users;
+            if (s.total_venues  != null) document.getElementById('stat-venues').textContent   = s.total_venues;
+            if (s.today_bookings != null) document.getElementById('stat-bookings').textContent = s.today_bookings;
+            if (s.avail_slots   != null) document.getElementById('stat-slots').textContent    = s.avail_slots;
+        } catch (_) { /* keep demo values on failure */ }
+    }
+
+    // ── Render a single booking row (for both tables)
+    function bookingRow(b) {
+        const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
+        const cancelBtn = isConfirmed
+            ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking(${b.id}, this)">Cancel</button>`
+            : '—';
+        const date = fmtDate(b.booking_date);
+        const time = b.start_time ? fmtTime(b.start_time) : '—';
+        return `<tr>
+            <td style="font-size:12px;">${b.booking_ref || b.id}</td>
+            <td>${b.full_name || '—'}</td>
+            <td>${b.venue_name || '—'}</td>
+            <td>${b.sport_name || '—'}</td>
+            <td>${date}</td>
+            <td>${time}</td>
+            <td>₹${b.amount || 0}</td>
+            <td>${statusBadge((b.booking_status || 'UNKNOWN').toUpperCase())}</td>
+            <td style="font-size:11px;color:var(--gray-mid);">${b.transaction_id || '—'}</td>
+            <td>${cancelBtn}</td>
+        </tr>`;
+    }
+
+    // ── Load Bookings Table ──────────────────────────────────────
+    async function loadBookings() {
+        const token = ADMIN_TOKEN();
+        if (!token) return;
+        try {
+            const res = await fetch('/api/admin/bookings', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            const bookings = data.bookings || data;
+            if (!Array.isArray(bookings) || bookings.length === 0) return;
+
+            // Full bookings table
+            const tbody = document.getElementById('bookings-table-body');
+            if (tbody) tbody.innerHTML = bookings.map(bookingRow).join('');
+
+            // Recent bookings (overview section) — show latest 5
+            const recentTbody = document.getElementById('recent-bookings-table');
+            if (recentTbody) {
+                const recent = [...bookings].reverse().slice(0, 5);
+                recentTbody.innerHTML = recent.map(b => {
+                    const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
+                    const cancelBtn = isConfirmed
+                        ? `<button class="btn-table btn-table-danger" data-booking-id="${b.id}" onclick="adminCancelBooking(${b.id}, this)">Cancel</button>`
+                        : '—';
+                    return `<tr>
+                        <td style="font-size:12px;">${b.booking_ref || b.id}</td>
+                        <td>${b.full_name || '—'}</td>
+                        <td>${b.venue_name || '—'}</td>
+                        <td>${b.sport_name || '—'}</td>
+                        <td>${fmtDate(b.booking_date)}</td>
+                        <td>₹${b.amount || 0}</td>
+                        <td>${statusBadge((b.booking_status || 'UNKNOWN').toUpperCase())}</td>
+                        <td>${cancelBtn}</td>
+                    </tr>`;
+                }).join('');
+            }
+        } catch (_) { /* keep demo rows on failure */ }
+    }
+
+    // ── Load Users Table ─────────────────────────────────────────
+    async function loadUsers() {
+        const token = ADMIN_TOKEN();
+        if (!token) return;
+        try {
+            const res = await fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) return;
+            const data = await res.json();
+            const users = data.users || data;
+            if (!Array.isArray(users) || users.length === 0) return;
+
+            const tbody = document.getElementById('users-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = users.map(u => `<tr>
+                <td>${u.user_id || u.id}</td>
+                <td style="font-weight:600;color:var(--white);">${u.full_name || '—'}</td>
+                <td>${u.email || '—'}</td>
+                <td>${u.phone || '—'}</td>
+                <td>${fmtDate(u.created_at)}</td>
+            </tr>`).join('');
+
+            const titleEl = document.getElementById('users-table-title');
+            if (titleEl) titleEl.textContent = `Registered Users (${users.length})`;
+        } catch (_) { /* keep demo rows on failure */ }
     }
 
     // ── Render venues table
@@ -577,6 +715,11 @@
         document.getElementById('admin-cancel-overlay').addEventListener('click', function(e) {
             if (e.target === this) closeAdminCancelDialog();
         });
+
+        // Load real data from APIs (fallback: keep demo rows on failure)
+        loadStats();
+        loadBookings();
+        loadUsers();
     });
 </script>
 

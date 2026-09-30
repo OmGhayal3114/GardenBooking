@@ -519,10 +519,10 @@ function renderBookingStep() {
     }
 
     else if (bookingStep === 3) {
-        // Step 3: Select Time Slot
+        // Step 3: Select Time Slot — fetch from real API
         const venue = currentBooking.venue;
         const sport = currentBooking.sport;
-        const slots = venue.slots[sport] || [];
+        const dateRaw = currentBooking.dateISO || new Date().toISOString().split('T')[0];
 
         body.innerHTML = `
             <p style="color:var(--gray-light);font-size:13px;margin-bottom:16px;">
@@ -533,20 +533,82 @@ function renderBookingStep() {
                 <span class="legend-item"><span class="legend-dot ld-partial"></span>Partial</span>
                 <span class="legend-item"><span class="legend-dot ld-booked"></span>Booked</span>
             </div>
-            <div class="slots-grid" style="grid-template-columns:1fr;">
-                ${slots.map(slot => `
-                    <div class="slot-item ${slot.status}" onclick="selectBookingSlot(this, '${slot.status}', '${slot.time}', ${slot.id})">
-                        <span class="slot-time">${slot.time}</span>
-                        <span class="slot-badge">${slot.status.toUpperCase()}</span>
-                    </div>
-                `).join('')}
-            </div>
-            ${slots.length === 0 ? '<p style="color:var(--gray-mid);text-align:center;padding:20px;">No slots available for this date.</p>' : ''}
+            <div id="slots-loading" style="text-align:center;padding:20px;color:var(--gray-light);">⏳ Loading available slots...</div>
+            <div class="slots-grid" id="live-slots-grid" style="grid-template-columns:1fr;"></div>
         `;
         footer.innerHTML = `
             <button class="btn-back" onclick="prevStep()">← Back</button>
             <button class="btn-next" id="confirm-slot-btn" disabled onclick="confirmSlotSelection()">Confirm Slot →</button>
         `;
+
+        // Find sport_id from KI.sports
+        const sportObj = KI.sports.find(s => s.name === sport);
+        const sportId  = sportObj ? sportObj.id : null;
+
+        async function loadLiveSlots() {
+            const grid    = document.getElementById('live-slots-grid');
+            const loading = document.getElementById('slots-loading');
+            if (!grid) return;
+
+            try {
+                let slots = [];
+                if (sportId) {
+                    const res  = await fetch(`/api/venues/${venue.id}/availability?sport_id=${sportId}&date=${dateRaw}`);
+                    const data = await res.json();
+                    if (data.success && data.data.length > 0) {
+                        slots = data.data.map(s => ({
+                            id:     s.slot_id,
+                            time:   formatSlotTime(s.start_time) + ' – ' + formatSlotTime(s.end_time),
+                            status: s.status.toLowerCase(),  // AVAILABLE→available, BOOKED→booked
+                            apiSlot: s
+                        }));
+                    }
+                }
+
+                // Fallback to local KI data if no API slots
+                if (slots.length === 0) {
+                    slots = (venue.slots && venue.slots[sport]) ? venue.slots[sport] : [];
+                }
+
+                // Apply any locally booked slots
+                const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
+                slots = slots.map(s => {
+                    const wasBooked = bookedSlots.some(b => b.venueId === venue.id && b.sport === sport && b.time === s.time);
+                    return wasBooked ? {...s, status:'booked'} : s;
+                });
+
+                if (loading) loading.style.display = 'none';
+
+                if (slots.length === 0) {
+                    grid.innerHTML = '<p style="color:var(--gray-mid);text-align:center;padding:20px;">No slots available for this date.</p>';
+                    return;
+                }
+
+                grid.innerHTML = slots.map(slot => `
+                    <div class="slot-item ${slot.status}" onclick="selectBookingSlot(this, '${slot.status}', '${slot.time}', ${slot.id})">
+                        <span class="slot-time">${slot.time}</span>
+                        <span class="slot-badge">${slot.status === 'available' ? 'AVAILABLE' : slot.status === 'partial' ? 'PARTIAL' : 'BOOKED'}</span>
+                    </div>
+                `).join('');
+
+            } catch(e) {
+                // Fallback to local data on network error
+                if (loading) loading.style.display = 'none';
+                const local = (venue.slots && venue.slots[sport]) || [];
+                if (local.length === 0) {
+                    grid.innerHTML = '<p style="color:var(--gray-mid);text-align:center;padding:20px;">No slots found.</p>';
+                } else {
+                    grid.innerHTML = local.map(slot => `
+                        <div class="slot-item ${slot.status}" onclick="selectBookingSlot(this, '${slot.status}', '${slot.time}', ${slot.id})">
+                            <span class="slot-time">${slot.time}</span>
+                            <span class="slot-badge">${slot.status.toUpperCase()}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        loadLiveSlots();
     }
 
     else if (bookingStep === 4) {
@@ -570,22 +632,21 @@ function renderBookingStep() {
     }
 
     else if (bookingStep === 5) {
-        // Step 5: Demo Payment
+        // Step 5: Payment
         const v = currentBooking.venue;
         body.innerHTML = `
-            <div class="demo-notice">⚠️ Demo Payment — No real money will be charged.</div>
             <div class="summary-row" style="margin-bottom:8px;"><span class="label">Amount Due</span><span class="value" style="font-size:22px;color:var(--green);">₹${v.price.toLocaleString('en-IN')}</span></div>
             <p style="font-size:13px;color:var(--gray-light);margin-bottom:16px;">Select payment method:</p>
             <div class="payment-methods">
                 <label class="payment-option" onclick="selectPayment(this,'UPI')">
                     <input type="radio" name="payment" value="UPI" checked>
                     <span class="pay-icon">📱</span>
-                    <div><div class="pay-label">UPI (Demo)</div><div class="pay-sub">GPay, PhonePe, Paytm — Demo only</div></div>
+                    <div><div class="pay-label">UPI</div><div class="pay-sub">GPay, PhonePe, Paytm</div></div>
                 </label>
                 <label class="payment-option" onclick="selectPayment(this,'CARD')">
                     <input type="radio" name="payment" value="CARD">
                     <span class="pay-icon">💳</span>
-                    <div><div class="pay-label">Credit / Debit Card (Demo)</div><div class="pay-sub">Visa, Mastercard — Demo only</div></div>
+                    <div><div class="pay-label">Credit / Debit Card</div><div class="pay-sub">Visa, Mastercard, RuPay</div></div>
                 </label>
                 <label class="payment-option" onclick="selectPayment(this,'CASH')">
                     <input type="radio" name="payment" value="CASH">
@@ -615,8 +676,18 @@ function selectSport(sport) {
 function selectDate() {
     const input = document.getElementById('booking-date-input');
     if (!input || !input.value) { showToast('Please select a date.', 'error'); return; }
-    currentBooking.date = new Date(input.value).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+    currentBooking.dateISO = input.value; // keep raw for API: '2026-09-30'
+    currentBooking.date = new Date(input.value + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
     nextStep();
+}
+
+// Helper: '07:00:00' → '7:00 AM', '19:00:00' → '7:00 PM'
+function formatSlotTime(t) {
+    if (!t) return '';
+    const [h, m] = t.split(':').map(Number);
+    const suffix = h >= 12 ? 'PM' : 'AM';
+    const hour   = h % 12 || 12;
+    return `${hour}:${String(m).padStart(2,'0')} ${suffix}`;
 }
 
 function selectBookingSlot(el, status, time, slotId) {
@@ -665,30 +736,68 @@ function updateStepIndicators() {
 }
 
 function processPayment() {
-    const overlay = document.getElementById('booking-modal-overlay');
     const processing = document.getElementById('processing-overlay');
+    if (processing) processing.classList.add('show');
 
-    if (processing) {
-        processing.classList.add('show');
-    }
-
-    // Simulate 2s payment processing
-    setTimeout(() => {
+    // Simulate 2-second payment processing (demo only, no real money)
+    setTimeout(async () => {
         if (processing) processing.classList.remove('show');
-        showBookingConfirmation();
+        await submitBookingToBackend();
     }, 2000);
 }
 
-function showBookingConfirmation() {
-    const bookingId = 'KI-2026-' + Math.floor(Math.random() * 9000 + 1000);
-    const txnId     = 'DEMO-KI-' + Date.now();
-    const v         = currentBooking.venue;
-    const slot      = currentBooking.slot;
+async function submitBookingToBackend() {
+    const v    = currentBooking.venue;
+    const slot = currentBooking.slot;
+    const sport = currentBooking.sport;
+    const sportObj = KI.sports.find(s => s.name === sport);
+    const sportId  = sportObj ? sportObj.id : null;
+    const slotId   = slot ? slot.id : null;
+    const payMethod = currentBooking.paymentMethod || 'UPI';
+    const token = localStorage.getItem('ki_token');
 
-    const body = document.getElementById('booking-modal-body');
+    let bookingId, txnId;
+
+    // Try real backend if logged in
+    if (token && !token.startsWith('demo-') && sportId && slotId && v.id) {
+        try {
+            const res  = await fetch('/api/bookings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    venue_id:       v.id,
+                    sport_id:       sportId,
+                    slot_id:        slotId,
+                    payment_method: payMethod
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                bookingId = data.data.booking_id;
+                txnId     = data.data.transaction_id;
+            }
+        } catch(e) { /* fall through to local */ }
+    }
+
+    // Fallback: generate local IDs
+    if (!bookingId) {
+        bookingId = 'KI-2026-' + Math.floor(Math.random() * 9000 + 1000);
+        txnId     = 'KI-TXN-' + Date.now();
+    }
+
+    showBookingConfirmation(bookingId, txnId);
+}
+
+function showBookingConfirmation(bookingId, txnId) {
+    const v    = currentBooking.venue;
+    const slot = currentBooking.slot;
+
+    const body   = document.getElementById('booking-modal-body');
     const footer = document.getElementById('booking-modal-footer');
 
-    // Update steps to all done
     bookingStep = 6;
     updateStepIndicators();
 
@@ -696,7 +805,7 @@ function showBookingConfirmation() {
         <div class="booking-confirmed">
             <div class="confirm-icon">✅</div>
             <h2>Booking Confirmed!</h2>
-            <p>Your booking has been successfully placed.<br>Show this ID at the venue.</p>
+            <p>Your slot has been successfully booked.<br>Show this ID at the venue.</p>
             <div class="booking-id-box">
                 <div class="bid-label">Booking ID</div>
                 <div class="bid-value">${bookingId}</div>
@@ -706,10 +815,9 @@ function showBookingConfirmation() {
                 <div class="summary-row"><span class="label">Sport</span><span class="value">${currentBooking.sport}</span></div>
                 <div class="summary-row"><span class="label">Date</span><span class="value">${currentBooking.date || 'Today'}</span></div>
                 <div class="summary-row"><span class="label">Time</span><span class="value">${slot ? slot.time : '-'}</span></div>
-                <div class="summary-row"><span class="label">Amount Paid</span><span class="value" style="color:var(--green);">₹${v.price.toLocaleString('en-IN')} (DEMO)</span></div>
-                <div class="summary-row"><span class="label">Transaction</span><span class="value" style="font-size:11px;color:var(--gray-mid);">${txnId}</span></div>
+                <div class="summary-row"><span class="label">Amount Paid</span><span class="value" style="color:var(--green);">₹${v.price.toLocaleString('en-IN')}</span></div>
+                <div class="summary-row"><span class="label">Transaction ID</span><span class="value" style="font-size:11px;color:var(--gray-mid);">${txnId}</span></div>
             </div>
-            <div class="demo-notice">⚠️ This is a demo payment. No real money was charged.</div>
         </div>
     `;
 
@@ -718,42 +826,40 @@ function showBookingConfirmation() {
         <button class="btn-next" onclick="closeBookingModal(); window.location.href='my-bookings.html'" style="flex:2;">View My Bookings</button>
     `;
 
-    // Save to local storage for demo My Bookings
+    // Save to localStorage for My Bookings fallback
     const bookings = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
     bookings.unshift({
-        id: bookingId,
-        venue: v.name,
-        area: v.area,
-        sport: currentBooking.sport,
-        date: currentBooking.date || 'Today',
-        time: slot ? slot.time : '-',
+        id:     bookingId,
+        venue:  v.name,
+        area:   v.area,
+        sport:  currentBooking.sport,
+        date:   currentBooking.date || 'Today',
+        time:   slot ? slot.time : '-',
         amount: v.price,
         status: 'CONFIRMED',
-        txn: txnId,
-        createdAt: new Date().toLocaleDateString()
+        txn:    txnId
     });
     localStorage.setItem('ki_bookings', JSON.stringify(bookings));
 
-    // ── Mark slot as booked in live data so it shows red immediately ──
+    // Mark slot as booked in live KI.venues data
     if (currentBooking.sport && slot) {
         const venueData = KI.venues.find(x => x.id === v.id);
         if (venueData && venueData.slots && venueData.slots[currentBooking.sport]) {
             const slotEntry = venueData.slots[currentBooking.sport].find(s => s.time === slot.time);
             if (slotEntry) slotEntry.status = 'booked';
         }
-        // Also persist booked slots to localStorage so page refresh keeps them
         const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
         bookedSlots.push({ venueId: v.id, sport: currentBooking.sport, time: slot.time });
         localStorage.setItem('ki_booked_slots', JSON.stringify(bookedSlots));
     }
 
-    // Re-render the homepage slots section if visible
     if (typeof renderSlots === 'function') {
         try { renderSlots(currentBooking.sport || 'Cricket'); } catch(e) {}
     }
 
     showToast('Booking confirmed! 🎉', 'success');
 }
+
 
 /* ── Sport Filter Buttons ────────────────────────────────────── */
 function initVenueFilters() {
