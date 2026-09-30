@@ -99,28 +99,106 @@ let allBookings  = [];
 let currentFilter = 'all';
 let pendingCancelId = null;
 
-// ── Default bookings (used only if nothing is stored) ──────────
-const defaultBookings = [
-    { id:'KI-2026-0001', venue:'Dadar Multi-Sports Arena',  area:'Dadar',   sport:'Cricket',  date:'28 Sep 2026', time:'7:00 AM – 8:00 AM',  amount:800,  status:'CONFIRMED', txn:'KI-TXN-001' },
-    { id:'KI-2026-0002', venue:'Bandra Grounds Complex',    area:'Bandra',  sport:'Cricket',  date:'28 Sep 2026', time:'6:00 PM – 7:00 PM',  amount:1200, status:'CONFIRMED', txn:'KI-TXN-002' },
-    { id:'KI-2026-0003', venue:'Andheri Sports Hub',        area:'Andheri', sport:'Football', date:'25 Sep 2026', time:'7:00 AM – 8:00 AM',  amount:900,  status:'COMPLETED', txn:'KI-TXN-003' },
-    { id:'KI-2026-0004', venue:'Powai Sports Galaxy',       area:'Powai',   sport:'Football', date:'22 Sep 2026', time:'6:00 PM – 7:00 PM',  amount:800,  status:'CANCELLED', txn:'KI-TXN-004' },
-];
+// ── Helpers ────────────────────────────────────────────
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return dateStr;
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function formatTime(t) {
+    if (!t) return '';
+    const [hh, mm] = t.split(':');
+    const h = parseInt(hh, 10);
+    const suffix = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return h12 + ':' + mm + ' ' + suffix;
+}
+
+function mapApiBooking(raw) {
+    return {
+        id:     raw.booking_ref   || raw.id      || '',
+        venue:  raw.venue_name    || raw.venue   || '',
+        area:   raw.area          || 'Mumbai',
+        sport:  raw.sport_name    || raw.sport   || '',
+        date:   raw.booking_date  ? formatDate(raw.booking_date) : (raw.date || ''),
+        time:   (raw.start_time && raw.end_time)
+                    ? formatTime(raw.start_time) + ' – ' + formatTime(raw.end_time)
+                    : (raw.time || ''),
+        amount: Number(raw.amount) || 0,
+        status: raw.booking_status || raw.status || 'CONFIRMED',
+        txn:    raw.transaction_id || raw.txn    || '',
+        _booking_id: raw.booking_id || raw.id || null,
+    };
+}
+
+// ── Data loading ───────────────────────────────────────────
 
 function saveBookings() {
     localStorage.setItem('ki_bookings', JSON.stringify(allBookings));
 }
 
-function loadBookings() {
-    const stored = localStorage.getItem('ki_bookings');
-    if (stored) {
-        allBookings = JSON.parse(stored);
-    } else {
-        // First time — seed the defaults and save them
-        allBookings = [...defaultBookings];
-        saveBookings();
+async function fetchApiBookings() {
+    const token = localStorage.getItem('ki_token');
+    if (!token) return null;
+    try {
+        const res = await fetch('/api/bookings', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const rows = Array.isArray(data) ? data : (data.bookings || []);
+        return rows.map(mapApiBooking);
+    } catch (_) {
+        return null;
     }
 }
+
+async function loadBookings() {
+    const token = localStorage.getItem('ki_token');
+
+    if (!token) {
+        showLoginPrompt();
+        return;
+    }
+
+    const apiData = await fetchApiBookings();
+    if (apiData !== null) {
+        allBookings = apiData;
+        saveBookings();
+        filterBookings(currentFilter, document.querySelector('.bookings-tab.active'));
+        return;
+    }
+
+    // API failed — fall back to localStorage cache
+    const stored = localStorage.getItem('ki_bookings');
+    if (stored) {
+        try { allBookings = JSON.parse(stored); } catch (_) { allBookings = []; }
+    } else {
+        allBookings = [];
+    }
+    filterBookings(currentFilter, document.querySelector('.bookings-tab.active'));
+}
+
+// ── Login prompt ──────────────────────────────────────────────────
+
+function showLoginPrompt() {
+    const container = document.getElementById('booking-list');
+    const empty     = document.getElementById('empty-state');
+    empty.style.display = 'none';
+    container.innerHTML =
+        '<div style="text-align:center;padding:60px 0;">' +
+        '<div style="font-size:56px;margin-bottom:16px;">🔒</div>' +
+        '<h3 style="margin-bottom:8px;">Please Log In</h3>' +
+        '<p style="color:var(--gray-light);margin-bottom:24px;">Log in to view your booking history.</p>' +
+        '<button class="btn-primary" style="padding:12px 28px;border:none;border-radius:12px;font-size:15px;font-weight:700;"' +
+        ' onclick="window.location.href='index.html'">Login / Sign Up</button>' +
+        '</div>';
+}
+
+// ── Rendering ──────────────────────────────────────────────────────────
 
 function renderBookings(list) {
     const container = document.getElementById('booking-list');
@@ -129,44 +207,51 @@ function renderBookings(list) {
     if (list.length === 0) {
         container.innerHTML = '';
         empty.style.display = 'block';
+        empty.querySelector('h3').textContent = 'No Bookings Yet';
+        empty.querySelector('p').textContent  = 'Book your first slot!';
         return;
     }
 
     empty.style.display = 'none';
-    container.innerHTML = list.map(b => `
-        <div class="booking-item fade-up" id="booking-${b.id.replace(/-/g,'_')}">
-            <div class="booking-sport-icon">${sportEmojis[b.sport] || '🏅'}</div>
-            <div class="booking-info">
-                <h3>${b.venue}</h3>
-                <p>📍 ${b.area || 'Mumbai'} &nbsp;|&nbsp; 🏅 ${b.sport}</p>
-                <p>📅 ${b.date} &nbsp;|&nbsp; ⏰ ${b.time}</p>
-                <p style="font-size:12px;color:var(--gray-mid);margin-top:4px;">Booking ID: ${b.id}</p>
-            </div>
-            <div class="booking-meta">
-                <span class="booking-status status-${b.status.toLowerCase()}">${b.status}</span>
-                <span class="booking-amount">₹${b.amount.toLocaleString('en-IN')}</span>
-            </div>
-            <div class="booking-actions">
-                <button class="btn-sm" onclick="showBookingDetail('${b.id}')">Details</button>
-                ${b.status === 'CONFIRMED' ? `<button class="btn-sm btn-sm-danger" onclick="openCancelDialog('${b.id}')">Cancel</button>` : ''}
-            </div>
-        </div>
-    `).join('');
+    container.innerHTML = list.map(function(b) {
+        const cancelBtn = b.status === 'CONFIRMED'
+            ? '<button class="btn-sm btn-sm-danger" onclick="openCancelDialog(\''+b.id+'\')">Cancel</button>'
+            : '';
+        const safeId = b.id.replace(/-/g,'_');
+        return '<div class="booking-item fade-up" id="booking-'+safeId+'">' +
+            '<div class="booking-sport-icon">'+(sportEmojis[b.sport]||'🏅')+'</div>' +
+            '<div class="booking-info">' +
+                '<h3>'+b.venue+'</h3>' +
+                '<p>📍 '+(b.area||'Mumbai')+' &nbsp;|&nbsp; 🏅 '+b.sport+'</p>' +
+                '<p>📅 '+b.date+' &nbsp;|&nbsp; ⏰ '+b.time+'</p>' +
+                '<p style="font-size:12px;color:var(--gray-mid);margin-top:4px;">Booking ID: '+b.id+'</p>' +
+            '</div>' +
+            '<div class="booking-meta">' +
+                '<span class="booking-status status-'+b.status.toLowerCase()+'">'+b.status+'</span>' +
+                '<span class="booking-amount">₹'+Number(b.amount).toLocaleString('en-IN')+'</span>' +
+            '</div>' +
+            '<div class="booking-actions">' +
+                '<button class="btn-sm" onclick="showBookingDetail(\''+b.id+'\')">Details</button>' +
+                cancelBtn +
+            '</div>' +
+        '</div>';
+    }).join('');
 
-    document.querySelectorAll('.booking-item.fade-up').forEach((el, i) => {
-        setTimeout(() => el.classList.add('visible'), i * 80);
+    document.querySelectorAll('.booking-item.fade-up').forEach(function(el, i) {
+        setTimeout(function() { el.classList.add('visible'); }, i * 80);
     });
 }
 
 function filterBookings(status, btn) {
     currentFilter = status;
-    document.querySelectorAll('.bookings-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.bookings-tab').forEach(function(t) { t.classList.remove('active'); });
     if (btn) btn.classList.add('active');
-    const filtered = status === 'all' ? allBookings : allBookings.filter(b => b.status === status);
+    const filtered = status === 'all' ? allBookings : allBookings.filter(function(b) { return b.status === status; });
     renderBookings(filtered);
 }
 
-// ── Cancel dialog ──────────────────────────────────────────────
+// ── Cancel dialog ──────────────────────────────────────────────────────
+
 function openCancelDialog(id) {
     pendingCancelId = id;
     const overlay = document.getElementById('cancel-overlay');
@@ -180,52 +265,81 @@ function closeCancelDialog() {
     pendingCancelId = null;
 }
 
-function confirmCancel() {
+async function confirmCancel() {
     if (!pendingCancelId) return;
     const id = pendingCancelId;
     closeCancelDialog();
 
-    const idx = allBookings.findIndex(b => b.id === id);
-    if (idx === -1) return;
+    const booking = allBookings.find(function(b) { return b.id === id; });
+    if (!booking) return;
 
-    // Try backend cancel
     const token = localStorage.getItem('ki_token');
-    if (token && !token.startsWith('demo-')) {
-        fetch(`/api/bookings/${id}/cancel`, {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${token}` }
-        }).catch(() => {});
+    const btn   = document.getElementById('confirm-cancel-btn');
+
+    if (token) {
+        const endpointId = booking._booking_id || id;
+        try {
+            if (btn) btn.disabled = true;
+            const res = await fetch('/api/bookings/' + endpointId + '/cancel', {
+                method: 'PUT',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(function() { return {}; });
+                showToast(err.message || 'Cancel failed — please try again.', 'error');
+                if (btn) btn.disabled = false;
+                return;
+            }
+        } catch (_) {
+            showToast('Network error — please try again.', 'error');
+            if (btn) btn.disabled = false;
+            return;
+        } finally {
+            if (btn) btn.disabled = false;
+        }
     }
 
-    // Immediately remove from the list and save
-    allBookings.splice(idx, 1);
-    saveBookings();
+    // Remove card from DOM
+    const cardId = 'booking-' + id.replace(/-/g,'_');
+    const card = document.getElementById(cardId);
+    if (card) card.remove();
 
+    allBookings = allBookings.filter(function(b) { return b.id !== id; });
+    saveBookings();
     showToast('Booking cancelled successfully.', 'info');
-    filterBookings(currentFilter, document.querySelector(`.bookings-tab.active`));
+
+    const filtered = currentFilter === 'all' ? allBookings : allBookings.filter(function(b) { return b.status === currentFilter; });
+    if (filtered.length === 0) filterBookings(currentFilter, document.querySelector('.bookings-tab.active'));
 }
 
 function showBookingDetail(id) {
-    const b = allBookings.find(b => b.id === id);
+    const b = allBookings.find(function(b) { return b.id === id; });
     if (!b) return;
-    showToast(`${b.id} — ${b.venue} | ${b.sport} | ${b.date}`, 'info');
+    showToast(b.id + ' — ' + b.venue + ' | ' + b.sport + ' | ' + b.date, 'info');
 }
 
-// ── Navbar auth state ──────────────────────────────────────────
+// ── Navbar auth state ────────────────────────────────────────────────
+
 function refreshNavAuth() {
     const user  = JSON.parse(localStorage.getItem('ki_user')  || 'null');
     const admin = JSON.parse(localStorage.getItem('ki_admin') || 'null');
     const actions = document.getElementById('nav-actions');
     if (!actions) return;
     const displayName = user ? (user.full_name || user.name || 'User') : '';
+    const firstName = displayName.split(' ')[0];
     if (admin) {
-        actions.innerHTML = `
-            <a href="admin/index.html" class="btn-ghost" style="color:#a78bfa;">⚙️ Admin</a>
-            <button class="btn-primary" onclick="doLogout()">Logout</button>`;
+        actions.innerHTML =
+            '<a href="admin/index.html" class="btn-ghost" style="color:#a78bfa;">⚙️ Admin</a>' +
+            '<button class="btn-primary" onclick="doLogout()">Logout</button>';
     } else if (user) {
-        actions.innerHTML = `
-            <span style="font-size:13px;color:var(--gray-light);">👤 ${displayName.split(' ')[0]}</span>
-            <button class="btn-primary" onclick="doLogout()">Logout</button>`;
+        actions.innerHTML =
+            '<span style="font-size:13px;color:var(--gray-light);">👤 ' + firstName + '</span>' +
+            '<button class="btn-primary" onclick="doLogout()">Logout</button>';
+    }
+    const mob = document.getElementById('mobile-menu');
+    if (mob && user) {
+        const mobBtn = mob.querySelector('button.btn-primary');
+        if (mobBtn) mobBtn.outerHTML = '<button class="btn-primary" onclick="doLogout()">Logout (' + firstName + ')</button>';
     }
 }
 
@@ -235,27 +349,26 @@ function doLogout() {
     localStorage.removeItem('ki_admin');
     localStorage.removeItem('ki_admin_token');
     showToast('Logged out successfully.', 'info');
-    setTimeout(() => window.location.href = 'index.html', 600);
+    setTimeout(function() { window.location.href = 'index.html'; }, 600);
 }
 
-// ── Init ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-    loadBookings();
-    renderBookings(allBookings);
-    refreshNavAuth();
+// ── Init ────────────────────────────────────────────────────────────
 
-    window.addEventListener('scroll', () => {
+document.addEventListener('DOMContentLoaded', function() {
+    refreshNavAuth();
+    loadBookings();
+
+    window.addEventListener('scroll', function() {
         document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
     });
 
     const ham = document.getElementById('hamburger');
     const mob = document.getElementById('mobile-menu');
-    ham.addEventListener('click', () => {
+    ham.addEventListener('click', function() {
         ham.classList.toggle('open');
         mob.classList.toggle('open');
     });
 
-    // Close cancel dialog on overlay click
     document.getElementById('cancel-overlay').addEventListener('click', function(e) {
         if (e.target === this) closeCancelDialog();
     });
