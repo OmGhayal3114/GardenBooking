@@ -293,7 +293,7 @@
                 <span class="stat-icon">💰</span>
                 <div class="stat-info">
                     <div class="stat-value" id="stat-revenue">₹7,300</div>
-                    <div class="stat-name">Demo Revenue (Today)</div>
+                    <div class="stat-name">Total Revenue</div>
                 </div>
             </div>
         </div>
@@ -556,7 +556,7 @@
             });
             if (!res.ok) return;
             const data = await res.json();
-            const s = data.stats || data;
+            const s = data.data || data.stats || data;
             if (s.total_users   != null) document.getElementById('stat-users').textContent    = s.total_users;
             if (s.total_venues  != null) document.getElementById('stat-venues').textContent   = s.total_venues;
             if (s.today_bookings != null) document.getElementById('stat-bookings').textContent = s.today_bookings;
@@ -566,24 +566,26 @@
 
     // ── Render a single booking row (for both tables)
     function bookingRow(b) {
+        const bid = b.booking_id || b.id;
         const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
         const cancelBtn = isConfirmed
-            ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking(${b.id}, this)">Cancel</button>`
+            ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking(${bid}, this)">Cancel</button>`
             : '—';
         const date = fmtDate(b.booking_date);
         const time = b.start_time ? fmtTime(b.start_time) : '—';
         return `<tr>
-            <td style="font-size:12px;">${b.booking_ref || b.id}</td>
+            <td style="font-size:12px;">${b.booking_ref || ('KI-2026-' + String(bid).padStart(4,'0'))}</td>
             <td>${b.full_name || '—'}</td>
             <td>${b.venue_name || '—'}</td>
             <td>${b.sport_name || '—'}</td>
             <td>${date}</td>
             <td>${time}</td>
-            <td>₹${b.amount || 0}</td>
+            <td>₹${Number(b.amount || 0).toLocaleString('en-IN')}</td>
             <td>${statusBadge((b.booking_status || 'UNKNOWN').toUpperCase())}</td>
             <td style="font-size:11px;color:var(--gray-mid);">${b.transaction_id || '—'}</td>
             <td>${cancelBtn}</td>
         </tr>`;
+    }
     }
 
     // ── Load Bookings Table ──────────────────────────────────────
@@ -596,7 +598,7 @@
             });
             if (!res.ok) return;
             const data = await res.json();
-            const bookings = data.bookings || data;
+            const bookings = Array.isArray(data.data) ? data.data : (data.bookings || []);
             if (!Array.isArray(bookings) || bookings.length === 0) return;
 
             // Full bookings table
@@ -606,25 +608,26 @@
             // Recent bookings (overview section) — show latest 5
             const recentTbody = document.getElementById('recent-bookings-table');
             if (recentTbody) {
-                const recent = [...bookings].reverse().slice(0, 5);
+                const recent = [...bookings].slice(0, 5);
                 recentTbody.innerHTML = recent.map(b => {
+                    const bid = b.booking_id || b.id;
                     const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
                     const cancelBtn = isConfirmed
-                        ? `<button class="btn-table btn-table-danger" data-booking-id="${b.id}" onclick="adminCancelBooking(${b.id}, this)">Cancel</button>`
+                        ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking(${bid}, this)">Cancel</button>`
                         : '—';
                     return `<tr>
-                        <td style="font-size:12px;">${b.booking_ref || b.id}</td>
+                        <td style="font-size:12px;">${b.booking_ref || ('KI-2026-' + String(bid).padStart(4,'0'))}</td>
                         <td>${b.full_name || '—'}</td>
                         <td>${b.venue_name || '—'}</td>
                         <td>${b.sport_name || '—'}</td>
                         <td>${fmtDate(b.booking_date)}</td>
-                        <td>₹${b.amount || 0}</td>
+                        <td>₹${Number(b.amount || 0).toLocaleString('en-IN')}</td>
                         <td>${statusBadge((b.booking_status || 'UNKNOWN').toUpperCase())}</td>
                         <td>${cancelBtn}</td>
                     </tr>`;
                 }).join('');
             }
-        } catch (_) { /* keep demo rows on failure */ }
+        } catch (_) { /* keep existing rows on failure */ }
     }
 
     // ── Load Users Table ─────────────────────────────────────────
@@ -637,7 +640,7 @@
             });
             if (!res.ok) return;
             const data = await res.json();
-            const users = data.users || data;
+            const users = Array.isArray(data.data) ? data.data : (data.users || []);
             if (!Array.isArray(users) || users.length === 0) return;
 
             const tbody = document.getElementById('users-table-body');

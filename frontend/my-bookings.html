@@ -149,7 +149,10 @@ async function fetchApiBookings() {
         });
         if (!res.ok) return null;
         const data = await res.json();
-        const rows = Array.isArray(data) ? data : (data.bookings || []);
+        // API returns { success: true, data: [...] }
+        const rows = Array.isArray(data.data) ? data.data
+                   : Array.isArray(data)      ? data
+                   : [];
         return rows.map(mapApiBooking);
     } catch (_) {
         return null;
@@ -163,6 +166,12 @@ async function loadBookings() {
         showLoginPrompt();
         return;
     }
+
+    // Show loading state
+    document.getElementById('booking-list').innerHTML =
+        '<div style="text-align:center;padding:60px 0;color:var(--gray-light);">' +
+        '<div style="font-size:40px;margin-bottom:12px;">⏳</div>' +
+        '<p>Loading your bookings...</p></div>';
 
     const apiData = await fetchApiBookings();
     if (apiData !== null) {
@@ -188,14 +197,14 @@ function showLoginPrompt() {
     const container = document.getElementById('booking-list');
     const empty     = document.getElementById('empty-state');
     empty.style.display = 'none';
-    container.innerHTML =
-        '<div style="text-align:center;padding:60px 0;">' +
-        '<div style="font-size:56px;margin-bottom:16px;">🔒</div>' +
-        '<h3 style="margin-bottom:8px;">Please Log In</h3>' +
-        '<p style="color:var(--gray-light);margin-bottom:24px;">Log in to view your booking history.</p>' +
-        '<button class="btn-primary" style="padding:12px 28px;border:none;border-radius:12px;font-size:15px;font-weight:700;"' +
-        ' onclick="window.location.href='index.html'">Login / Sign Up</button>' +
-        '</div>';
+    container.innerHTML = `
+        <div style="text-align:center;padding:60px 0;">
+            <div style="font-size:56px;margin-bottom:16px;">🔒</div>
+            <h3 style="margin-bottom:8px;">Please Log In</h3>
+            <p style="color:var(--gray-light);margin-bottom:24px;">Log in to view your booking history.</p>
+            <button class="btn-primary" style="padding:12px 28px;border:none;border-radius:12px;font-size:15px;font-weight:700;"
+                onclick="window.location.href='index.html'">Login / Sign Up</button>
+        </div>`;
 }
 
 // ── Rendering ──────────────────────────────────────────────────────────
@@ -207,8 +216,6 @@ function renderBookings(list) {
     if (list.length === 0) {
         container.innerHTML = '';
         empty.style.display = 'block';
-        empty.querySelector('h3').textContent = 'No Bookings Yet';
-        empty.querySelector('p').textContent  = 'Book your first slot!';
         return;
     }
 
