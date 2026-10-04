@@ -237,7 +237,7 @@
 
     <div class="sidebar-section-label">Settings</div>
     <a class="sidebar-link" href="../index.html">🏠 View Site</a>
-    <button class="sidebar-link" style="margin-top:auto;color:var(--red);" onclick="showToast('Logged out!','info')">🚪 Logout</button>
+    <button class="sidebar-link" style="margin-top:auto;color:var(--red);" onclick="doLogout()">🚪 Logout</button>
 </aside>
 
 <!-- Main Content -->
@@ -499,11 +499,19 @@
         const token = ADMIN_TOKEN();
         if (token) {
             try {
-                await fetch(`/api/admin/bookings/${bookingId}/cancel`, {
+                const res = await fetch(`/api/admin/bookings/${bookingId}/cancel`, {
                     method: 'PUT',
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-            } catch (_) { /* silently ignore network errors */ }
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    showToast(data.message || 'Failed to cancel booking.', 'error');
+                    return;
+                }
+            } catch (_) { 
+                showToast('Network error while cancelling.', 'error');
+                return;
+            }
         }
 
         // Also remove from user's ki_bookings in localStorage
@@ -514,9 +522,14 @@
             localStorage.setItem('ki_bookings', JSON.stringify(stored));
         }
 
-        // Remove row from table immediately
+        // Change status badge to cancelled and remove cancel button
         if (rowEl && rowEl.closest) {
-            rowEl.closest('tr').remove();
+            const tr = rowEl.closest('tr');
+            if (tr) {
+                const badgeTd = tr.querySelector('.tb-confirmed')?.parentElement;
+                if (badgeTd) badgeTd.innerHTML = statusBadge('CANCELLED');
+                rowEl.remove();
+            }
         }
 
         showToast(`Booking ${bookingId} cancelled successfully.`, 'success');
@@ -569,7 +582,7 @@
         const bid = b.booking_id || b.id;
         const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
         const cancelBtn = isConfirmed
-            ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking(${bid}, this)">Cancel</button>`
+            ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking('${bid}', this)">Cancel</button>`
             : '—';
         const date = fmtDate(b.booking_date);
         const time = b.start_time ? fmtTime(b.start_time) : '—';
@@ -585,7 +598,6 @@
             <td style="font-size:11px;color:var(--gray-mid);">${b.transaction_id || '—'}</td>
             <td>${cancelBtn}</td>
         </tr>`;
-    }
     }
 
     // ── Load Bookings Table ──────────────────────────────────────
@@ -613,7 +625,7 @@
                     const bid = b.booking_id || b.id;
                     const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
                     const cancelBtn = isConfirmed
-                        ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking(${bid}, this)">Cancel</button>`
+                        ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking('${bid}', this)">Cancel</button>`
                         : '—';
                     return `<tr>
                         <td style="font-size:12px;">${b.booking_ref || ('KI-2026-' + String(bid).padStart(4,'0'))}</td>
@@ -707,6 +719,14 @@
         document.querySelectorAll('.btn-table-danger[data-booking-id]').forEach(btn => {
             btn.onclick = () => adminCancelBooking(btn.dataset.bookingId, btn);
         });
+    }
+
+    // ── Logout
+    function doLogout() {
+        localStorage.removeItem('ki_admin');
+        localStorage.removeItem('ki_admin_token');
+        showToast('Logged out successfully.', 'info');
+        setTimeout(() => { window.location.href = '../index.html'; }, 600);
     }
 
     // ── Init

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -306,6 +306,23 @@
     // ── Venues page filter logic ──────────────────────────────
     let currentVenues = [];
 
+    async function initVenuesPage() {
+        try {
+            const res = await fetch('/api/venues');
+            const { data } = await res.json();
+            // Map DB fields to frontend format
+            KI.apiVenues = data.map(v => ({
+                id: v.venue_id, name: v.venue_name, area: v.area,
+                price: parseFloat(v.price_per_hour), rating: parseFloat(v.rating),
+                sports: v.sports_offered ? v.sports_offered.split(', ') : [],
+                image: v.image, availability: 'available', distance: '1.5 km'
+            }));
+        } catch(e) {
+            KI.apiVenues = KI.venues; // fallback to local data
+        }
+        applyFilters();
+    }
+
     function applyFilters() {
         const sports = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(c => c.value);
         const area   = document.getElementById('filter-location').value;
@@ -314,7 +331,7 @@
         const avail  = document.querySelector('input[name="avail"]:checked')?.value || '';
         const sort   = document.getElementById('sort-select').value;
 
-        let results = [...KI.venues];
+        let results = [...(KI.apiVenues || KI.venues)];
 
         if (sports.length)  results = results.filter(v => sports.some(s => v.sports.includes(s)));
         if (area)           results = results.filter(v => v.area === area);
@@ -404,7 +421,7 @@
         }
         if (loc) document.getElementById('filter-location').value = loc;
 
-        applyFilters();
+        initVenuesPage();
 
         // Navbar scroll
         window.addEventListener('scroll', () => {
