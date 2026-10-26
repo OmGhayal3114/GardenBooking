@@ -514,12 +514,20 @@
             }
         }
 
-        // Also remove from user's ki_bookings in localStorage
+        // Also update status in user's ki_bookings in localStorage
         const stored = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
-        const idx = stored.findIndex(b => b.id === bookingId);
-        if (idx !== -1) {
-            stored.splice(idx, 1);
+        const found = stored.find(b => (b.id === bookingId || b.booking_ref === bookingId || b.booking_id === bookingId));
+        if (found) {
+            found.status = 'CANCELLED';
+            found.booking_status = 'CANCELLED';
             localStorage.setItem('ki_bookings', JSON.stringify(stored));
+
+            // Release booked slot
+            try {
+                const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
+                const updated = bookedSlots.filter(s => !(s.sport === (found.sport || found.sport_name) && s.time === found.time));
+                localStorage.setItem('ki_booked_slots', JSON.stringify(updated));
+            } catch (_) {}
         }
 
         // Change status badge to cancelled and remove cancel button
@@ -602,44 +610,92 @@
 
     // ── Load Bookings Table ──────────────────────────────────────
     async function loadBookings() {
+        let bookings = [];
         const token = ADMIN_TOKEN();
-        if (!token) return;
-        try {
-            const res = await fetch('/api/admin/bookings', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (!res.ok) return;
-            const data = await res.json();
-            const bookings = Array.isArray(data.data) ? data.data : (data.bookings || []);
-            if (!Array.isArray(bookings) || bookings.length === 0) return;
 
-            // Full bookings table
-            const tbody = document.getElementById('bookings-table-body');
-            if (tbody) tbody.innerHTML = bookings.map(bookingRow).join('');
+        // 1. Fetch from backend API if active token
+        if (token && !token.startsWith('demo-')) {
+            try {
+                const res = await fetch('/api/admin/bookings', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    bookings = Array.isArray(data.data) ? data.data : (data.bookings || []);
+                }
+            } catch (_) {}
+        }
 
-            // Recent bookings (overview section) — show latest 5
-            const recentTbody = document.getElementById('recent-bookings-table');
-            if (recentTbody) {
-                const recent = [...bookings].slice(0, 5);
-                recentTbody.innerHTML = recent.map(b => {
-                    const bid = b.booking_id || b.id;
-                    const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
-                    const cancelBtn = isConfirmed
-                        ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking('${bid}', this)">Cancel</button>`
-                        : '—';
-                    return `<tr>
-                        <td style="font-size:12px;">${b.booking_ref || ('KI-2026-' + String(bid).padStart(4,'0'))}</td>
-                        <td>${b.full_name || '—'}</td>
-                        <td>${b.venue_name || '—'}</td>
-                        <td>${b.sport_name || '—'}</td>
-                        <td>${fmtDate(b.booking_date)}</td>
-                        <td>₹${Number(b.amount || 0).toLocaleString('en-IN')}</td>
-                        <td>${statusBadge((b.booking_status || 'UNKNOWN').toUpperCase())}</td>
-                        <td>${cancelBtn}</td>
-                    </tr>`;
-                }).join('');
+        // 2. Merge all user bookings saved in localStorage
+        const localBookings = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
+        localBookings.forEach(lb => {
+            const id = lb.booking_ref || lb.id || lb.booking_id;
+            const exists = bookings.some(b => (b.booking_ref === id || b.id === id || b.booking_id === id));
+            if (!exists) {
+                bookings.unshift({
+                    booking_id: lb.booking_id || lb.id,
+                    booking_ref: lb.booking_ref || lb.id,
+                    full_name: lb.full_name || 'Demo User',
+                    venue_name: lb.venue_name || lb.venue,
+                    sport_name: lb.sport_name || lb.sport,
+                    booking_date: lb.booking_date || lb.date,
+                    start_time: lb.start_time || (lb.time ? lb.time.split(' – ')[0] : '—'),
+                    amount: lb.amount || 800,
+                    booking_status: lb.booking_status || lb.status || 'CONFIRMED',
+                    transaction_id: lb.transaction_id || lb.txn || '—'
+                });
             }
-        } catch (_) { /* keep existing rows on failure */ }
+        });
+
+        // 3. Fallback demo rows if no bookings exist anywhere
+        if (bookings.length === 0) {
+            bookings = [
+                { booking_ref:'KI-2026-0001', full_name:'Arjun Sharma', venue_name:'Dadar Multi-Sports Arena', sport_name:'Cricket', booking_date:'2026-09-28', start_time:'07:00:00', amount:800, booking_status:'CONFIRMED', transaction_id:'KI-TXN-001' },
+                { booking_ref:'KI-2026-0002', full_name:'Priya Mehta', venue_name:'Dadar Multi-Sports Arena', sport_name:'Cricket', booking_date:'2026-09-28', start_time:'10:00:00', amount:800, booking_status:'CONFIRMED', transaction_id:'KI-TXN-002' },
+                { booking_ref:'KI-2026-0003', full_name:'Rohan Patil', venue_name:'Dadar Multi-Sports Arena', sport_name:'Badminton', booking_date:'2026-09-28', start_time:'08:00:00', amount:800, booking_status:'CONFIRMED', transaction_id:'KI-TXN-003' },
+                { booking_ref:'KI-2026-0004', full_name:'Arjun Sharma', venue_name:'Bandra Grounds Complex', sport_name:'Cricket', booking_date:'2026-09-28', start_time:'18:00:00', amount:1200, booking_status:'CONFIRMED', transaction_id:'KI-TXN-004' },
+                { booking_ref:'KI-2026-0005', full_name:'Priya Mehta', venue_name:'Andheri Sports Hub', sport_name:'Football', booking_date:'2026-09-25', start_time:'07:00:00', amount:900, booking_status:'COMPLETED', transaction_id:'KI-TXN-005' },
+                { booking_ref:'KI-2026-0007', full_name:'Vikram Desai', venue_name:'Dadar Multi-Sports Arena', sport_name:'Football', booking_date:'2026-09-28', start_time:'18:00:00', amount:800, booking_status:'CANCELLED', transaction_id:'KI-TXN-007' },
+            ];
+        }
+
+        // Full bookings table
+        const tbody = document.getElementById('bookings-table-body');
+        if (tbody) tbody.innerHTML = bookings.map(bookingRow).join('');
+
+        // Recent bookings (overview section) — show latest 5
+        const recentTbody = document.getElementById('recent-bookings-table');
+        if (recentTbody) {
+            const recent = [...bookings].slice(0, 5);
+            recentTbody.innerHTML = recent.map(b => {
+                const bid = b.booking_id || b.id;
+                const isConfirmed = (b.booking_status || '').toUpperCase() === 'CONFIRMED';
+                const cancelBtn = isConfirmed
+                    ? `<button class="btn-table btn-table-danger" onclick="adminCancelBooking('${bid}', this)">Cancel</button>`
+                    : '—';
+                return `<tr>
+                    <td style="font-size:12px;">${b.booking_ref || ('KI-2026-' + String(bid).padStart(4,'0'))}</td>
+                    <td>${b.full_name || '—'}</td>
+                    <td>${b.venue_name || '—'}</td>
+                    <td>${b.sport_name || '—'}</td>
+                    <td>${fmtDate(b.booking_date)}</td>
+                    <td>₹${Number(b.amount || 0).toLocaleString('en-IN')}</td>
+                    <td>${statusBadge((b.booking_status || 'UNKNOWN').toUpperCase())}</td>
+                    <td>${cancelBtn}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Update stats
+        const confirmedBookings = bookings.filter(b => (b.booking_status || '').toUpperCase() === 'CONFIRMED');
+        const statBookings = document.getElementById('stat-bookings');
+        if (statBookings) statBookings.textContent = confirmedBookings.length;
+
+        const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
+        const statSlots = document.getElementById('stat-slots');
+        if (statSlots) {
+            statSlots.textContent = Math.max(0, 84 - bookedSlots.length);
+        }
     }
 
     // ── Load Users Table ─────────────────────────────────────────

@@ -217,7 +217,7 @@ function renderSlots(sport) {
     if (!venue || !venue.slots[sport]) return;
 
     grid.innerHTML = venue.slots[sport].map(slot => `
-        <div class="slot-item ${slot.status} fade-up" data-slot-id="${slot.id}" onclick="selectSlot(this, '${slot.status}', '${slot.time}', '${venue.name}', '${sport}', ${venue.price})">
+        <div class="slot-item ${slot.status} fade-up" data-slot-id="${slot.id}" onclick="selectSlot(this, '${slot.status}', '${slot.time}', '${venue.name}', '${sport}', ${venue.price}, ${venue.id}, ${slot.id})">
             <span class="slot-time">${slot.time}</span>
             <span class="slot-badge">${slot.status === 'available' ? 'AVAILABLE' : slot.status === 'partial' ? 'PARTIAL' : slot.status === 'booked' ? 'BOOKED' : 'UNAVAILABLE'}</span>
         </div>
@@ -232,7 +232,7 @@ function renderSlots(sport) {
 /* ── Slot Selection ─────────────────────────────────────────── */
 let selectedSlotData = null;
 
-function selectSlot(el, status, time, venueName, sport, price) {
+function selectSlot(el, status, time, venueName, sport, price, venueId, slotId) {
     if (status === 'booked' || status === 'unavailable') {
         showToast('This slot is not available.', 'error');
         return;
@@ -241,7 +241,8 @@ function selectSlot(el, status, time, venueName, sport, price) {
     document.querySelectorAll('.slot-item.selected').forEach(s => s.classList.remove('selected'));
     el.classList.add('selected');
 
-    selectedSlotData = { time, venueName, sport, price };
+    const vId = venueId || 1;
+    selectedSlotData = { id: slotId, slotId: slotId, time, venueName, sport, price, venueId: vId };
 
     // Update the "Book Selected Slot" button if it exists
     const bookBtn = document.getElementById('book-selected-slot');
@@ -448,10 +449,13 @@ function startBooking(venueId) {
     bookingStep = 1;
 
     // Pre-fill from selected slot
-    if (selectedSlotData && selectedSlotData.venueId === venueId) {
+    if (selectedSlotData && (!selectedSlotData.venueId || selectedSlotData.venueId === venueId)) {
         currentBooking.slot     = selectedSlotData;
         currentBooking.sport    = selectedSlotData.sport;
-        bookingStep = 4; // Skip to time slot step
+        const now = new Date();
+        currentBooking.dateISO  = now.toISOString().split('T')[0];
+        currentBooking.date     = now.toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+        bookingStep = 4; // Skip to review step
     }
 
     openBookingModal();
@@ -826,19 +830,40 @@ function showBookingConfirmation(bookingId, txnId) {
         <button class="btn-next" onclick="closeBookingModal(); window.location.href='my-bookings.html'" style="flex:2;">View My Bookings</button>
     `;
 
-    // Save to localStorage for My Bookings fallback
+    // Save to localStorage for My Bookings fallback & Admin view
+    const user = JSON.parse(localStorage.getItem('ki_user') || 'null');
+    const fullName = user ? (user.full_name || user.name || 'User') : 'Demo User';
+    const userEmail = user ? (user.email || 'user@demo.com') : 'user@demo.com';
+    const userId = user ? (user.id || user.user_id || 1) : 1;
+
     const bookings = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
-    bookings.unshift({
-        id:     bookingId,
-        venue:  v.name,
-        area:   v.area,
-        sport:  currentBooking.sport,
-        date:   currentBooking.date || 'Today',
-        time:   slot ? slot.time : '-',
-        amount: v.price,
-        status: 'CONFIRMED',
-        txn:    txnId
-    });
+    const newBookingObj = {
+        id:             bookingId,
+        booking_id:     bookingId,
+        booking_ref:    bookingId,
+        user_id:        userId,
+        full_name:      fullName,
+        email:          userEmail,
+        venue:          v.name,
+        venue_name:     v.name,
+        venue_id:       v.id,
+        area:           v.area || 'Mumbai',
+        sport:          currentBooking.sport,
+        sport_name:     currentBooking.sport,
+        date:           currentBooking.date || new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }),
+        booking_date:   currentBooking.dateISO || new Date().toISOString().split('T')[0],
+        time:           slot ? slot.time : '06:00 AM – 07:00 AM',
+        start_time:     slot ? (slot.time.split(' – ')[0] || '06:00:00') : '06:00:00',
+        end_time:       slot ? (slot.time.split(' – ')[1] || '07:00:00') : '07:00:00',
+        amount:         Number(v.price) || 800,
+        status:         'CONFIRMED',
+        booking_status: 'CONFIRMED',
+        payment_status: 'PAID',
+        txn:            txnId,
+        transaction_id: txnId,
+        created_at:     new Date().toISOString()
+    };
+    bookings.unshift(newBookingObj);
     localStorage.setItem('ki_bookings', JSON.stringify(bookings));
 
     // Mark slot as booked in live KI.venues data
@@ -857,6 +882,7 @@ function showBookingConfirmation(bookingId, txnId) {
         try { renderSlots(currentBooking.sport || 'Cricket'); } catch(e) {}
     }
 
+    selectedSlotData = null; // Reset selection
     showToast('Booking confirmed! 🎉', 'success');
 }
 
