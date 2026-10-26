@@ -423,15 +423,7 @@
 
         initVenuesPage();
 
-        // Restore booked slots on venues page
-        const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
-        bookedSlots.forEach(({ venueId, sport, time }) => {
-            const venueData = window.KI && window.KI.venues && window.KI.venues.find(v => v.id === venueId);
-            if (venueData && venueData.slots && venueData.slots[sport]) {
-                const slotEntry = venueData.slots[sport].find(s => s.time === time);
-                if (slotEntry) slotEntry.status = 'booked';
-            }
-        });
+// Booked slots are evaluated dynamically in booking modal
 
         // Navbar scroll
         window.addEventListener('scroll', () => {

@@ -214,9 +214,23 @@ function renderSlots(sport) {
     if (!grid || !window.KI) return;
 
     const venue = KI.venues.find(v => v.id === 1); // Dadar as demo
-    if (!venue || !venue.slots[sport]) return;
+    if (!venue || !venue.slots || !venue.slots[sport]) return;
 
-    grid.innerHTML = venue.slots[sport].map(slot => `
+    const todayISO = new Date().toISOString().split('T')[0];
+    const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
+
+    const slotsList = venue.slots[sport].map(slot => {
+        const isBooked = bookedSlots.some(b => 
+            Number(b.venueId) === Number(venue.id) &&
+            b.sport === sport &&
+            b.date === todayISO &&
+            b.time === slot.time
+        );
+        const status = isBooked ? 'booked' : (slot.status || 'available');
+        return { ...slot, status };
+    });
+
+    grid.innerHTML = slotsList.map(slot => `
         <div class="slot-item ${slot.status} fade-up" data-slot-id="${slot.id}" onclick="selectSlot(this, '${slot.status}', '${slot.time}', '${venue.name}', '${sport}', ${venue.price}, ${venue.id}, ${slot.id})">
             <span class="slot-time">${slot.time}</span>
             <span class="slot-badge">${slot.status === 'available' ? 'AVAILABLE' : slot.status === 'partial' ? 'PARTIAL' : slot.status === 'booked' ? 'BOOKED' : 'UNAVAILABLE'}</span>
@@ -563,7 +577,7 @@ function renderBookingStep() {
                         slots = data.data.map(s => ({
                             id:     s.slot_id,
                             time:   formatSlotTime(s.start_time) + ' – ' + formatSlotTime(s.end_time),
-                            status: s.status.toLowerCase(),  // AVAILABLE→available, BOOKED→booked
+                            status: s.status.toLowerCase(),
                             apiSlot: s
                         }));
                     }
@@ -571,14 +585,20 @@ function renderBookingStep() {
 
                 // Fallback to local KI data if no API slots
                 if (slots.length === 0) {
-                    slots = (venue.slots && venue.slots[sport]) ? venue.slots[sport] : [];
+                    const localSlots = (venue.slots && venue.slots[sport]) ? venue.slots[sport] : [];
+                    slots = localSlots.map(s => ({ ...s }));
                 }
 
-                // Apply any locally booked slots
+                // Apply locally booked slots for THIS specific venue, sport, and date
                 const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
                 slots = slots.map(s => {
-                    const wasBooked = bookedSlots.some(b => b.venueId === venue.id && b.sport === sport && b.time === s.time);
-                    return wasBooked ? {...s, status:'booked'} : s;
+                    const wasBooked = bookedSlots.some(b => 
+                        Number(b.venueId) === Number(venue.id) && 
+                        b.sport === sport && 
+                        (b.date ? b.date === dateRaw : true) && 
+                        b.time === s.time
+                    );
+                    return wasBooked ? { ...s, status: 'booked' } : s;
                 });
 
                 if (loading) loading.style.display = 'none';
@@ -596,13 +616,23 @@ function renderBookingStep() {
                 `).join('');
 
             } catch(e) {
-                // Fallback to local data on network error
                 if (loading) loading.style.display = 'none';
                 const local = (venue.slots && venue.slots[sport]) || [];
-                if (local.length === 0) {
+                const bookedSlots = JSON.parse(localStorage.getItem('ki_booked_slots') || '[]');
+                const mappedLocal = local.map(s => {
+                    const wasBooked = bookedSlots.some(b => 
+                        Number(b.venueId) === Number(venue.id) && 
+                        b.sport === sport && 
+                        (b.date ? b.date === dateRaw : true) && 
+                        b.time === s.time
+                    );
+                    return wasBooked ? { ...s, status: 'booked' } : s;
+                });
+
+                if (mappedLocal.length === 0) {
                     grid.innerHTML = '<p style="color:var(--gray-mid);text-align:center;padding:20px;">No slots found.</p>';
                 } else {
-                    grid.innerHTML = local.map(slot => `
+                    grid.innerHTML = mappedLocal.map(slot => `
                         <div class="slot-item ${slot.status}" onclick="selectBookingSlot(this, '${slot.status}', '${slot.time}', ${slot.id})">
                             <span class="slot-time">${slot.time}</span>
                             <span class="slot-badge">${slot.status.toUpperCase()}</span>

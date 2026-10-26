@@ -30,35 +30,35 @@ KI.venues = [
         slots: {
             Cricket: [
                 { id:1,  time:'6:00 AM – 7:00 AM',   status:'available' },
-                { id:2,  time:'7:00 AM – 8:00 AM',   status:'booked'    },
+                { id:2,  time:'7:00 AM – 8:00 AM',   status:'available'    },
                 { id:3,  time:'8:00 AM – 9:00 AM',   status:'available' },
                 { id:4,  time:'9:00 AM – 10:00 AM',  status:'available' },
-                { id:5,  time:'10:00 AM – 11:00 AM', status:'booked'    },
+                { id:5,  time:'10:00 AM – 11:00 AM', status:'available'    },
                 { id:6,  time:'5:00 PM – 6:00 PM',   status:'available' },
                 { id:7,  time:'6:00 PM – 7:00 PM',   status:'available' },
-                { id:8,  time:'7:00 PM – 8:00 PM',   status:'booked'    },
+                { id:8,  time:'7:00 PM – 8:00 PM',   status:'available'    },
                 { id:9,  time:'8:00 PM – 9:00 PM',   status:'available' },
             ],
             Football: [
                 { id:10, time:'6:00 AM – 7:00 AM',   status:'available' },
                 { id:11, time:'7:00 AM – 8:00 AM',   status:'available' },
-                { id:12, time:'8:00 AM – 9:00 AM',   status:'booked'    },
-                { id:13, time:'6:00 PM – 7:00 PM',   status:'booked'    },
+                { id:12, time:'8:00 AM – 9:00 AM',   status:'available'    },
+                { id:13, time:'6:00 PM – 7:00 PM',   status:'available'    },
                 { id:14, time:'7:00 PM – 8:00 PM',   status:'available' },
             ],
             Badminton: [
                 { id:15, time:'6:00 AM – 7:00 AM',   status:'available' },
-                { id:16, time:'7:00 AM – 8:00 AM',   status:'partial'   },
-                { id:17, time:'8:00 AM – 9:00 AM',   status:'booked'    },
-                { id:18, time:'6:00 PM – 7:00 PM',   status:'partial'   },
+                { id:16, time:'7:00 AM – 8:00 AM',   status:'available'   },
+                { id:17, time:'8:00 AM – 9:00 AM',   status:'available'    },
+                { id:18, time:'6:00 PM – 7:00 PM',   status:'available'   },
                 { id:19, time:'7:00 PM – 8:00 PM',   status:'available' },
             ],
         },
         multiSport: [
             { area:'Football Field A',  sport:'Football',  time:'6:00 PM – 7:00 PM', status:'available' },
-            { area:'Cricket Pitch',     sport:'Cricket',   time:'6:00 PM – 8:00 PM', status:'booked'    },
+            { area:'Cricket Pitch',     sport:'Cricket',   time:'6:00 PM – 8:00 PM', status:'available'    },
             { area:'Badminton Court 1', sport:'Badminton', time:'6:00 PM – 7:00 PM', status:'available' },
-            { area:'Badminton Court 2', sport:'Badminton', time:'6:00 PM – 7:00 PM', status:'partial'   },
+            { area:'Badminton Court 2', sport:'Badminton', time:'6:00 PM – 7:00 PM', status:'available'   },
         ],
         reviews: [
             { name:'Arjun Sharma',  rating:5, text:'Amazing facility! Cricket pitch is well-maintained.', date:'25 Sep 2026' },
@@ -78,15 +78,15 @@ KI.venues = [
         slots: {
             Football: [
                 { id:20, time:'6:00 AM – 7:00 AM',   status:'available' },
-                { id:21, time:'7:00 AM – 8:00 AM',   status:'booked'    },
+                { id:21, time:'7:00 AM – 8:00 AM',   status:'available'    },
                 { id:22, time:'5:00 PM – 6:00 PM',   status:'available' },
                 { id:23, time:'6:00 PM – 7:00 PM',   status:'available' },
-                { id:24, time:'7:00 PM – 8:00 PM',   status:'booked'    },
+                { id:24, time:'7:00 PM – 8:00 PM',   status:'available'    },
             ],
             Badminton: [
                 { id:25, time:'6:00 AM – 7:00 AM',   status:'available' },
-                { id:26, time:'7:00 AM – 8:00 AM',   status:'partial'   },
-                { id:27, time:'5:00 PM – 6:00 PM',   status:'booked'    },
+                { id:26, time:'7:00 AM – 8:00 AM',   status:'available'   },
+                { id:27, time:'5:00 PM – 6:00 PM',   status:'available'    },
                 { id:28, time:'6:00 PM – 7:00 PM',   status:'available' },
             ],
         },
@@ -105,9 +105,9 @@ KI.venues = [
         slots: {
             Cricket: [
                 { id:30, time:'6:00 AM – 7:00 AM',  status:'available' },
-                { id:31, time:'7:00 AM – 8:00 AM',  status:'booked'    },
+                { id:31, time:'7:00 AM – 8:00 AM',  status:'available'    },
                 { id:32, time:'5:00 PM – 6:00 PM',  status:'available' },
-                { id:33, time:'6:00 PM – 7:00 PM',  status:'booked'    },
+                { id:33, time:'6:00 PM – 7:00 PM',  status:'available'    },
             ],
         },
         reviews: []
@@ -125,15 +125,15 @@ KI.venues = [
         slots: {
             Cricket: [
                 { id:40, time:'6:00 AM – 7:00 AM',   status:'available' },
-                { id:41, time:'7:00 AM – 8:00 AM',   status:'partial'   },
-                { id:42, time:'6:00 PM – 7:00 PM',   status:'booked'    },
+                { id:41, time:'7:00 AM – 8:00 AM',   status:'available'   },
+                { id:42, time:'6:00 PM – 7:00 PM',   status:'available'    },
                 { id:43, time:'7:00 PM – 8:00 PM',   status:'available' },
             ],
             Badminton: [
                 { id:44, time:'6:00 AM – 7:00 AM',  status:'available' },
                 { id:45, time:'7:00 AM – 8:00 AM',  status:'available' },
-                { id:46, time:'6:00 PM – 7:00 PM',  status:'partial'   },
-                { id:47, time:'7:00 PM – 8:00 PM',  status:'booked'    },
+                { id:46, time:'6:00 PM – 7:00 PM',  status:'available'   },
+                { id:47, time:'7:00 PM – 8:00 PM',  status:'available'    },
             ],
         },
         reviews: [{ name:'Sneha Joshi', rating:5, text:'Bandra Grounds is easily the best in Mumbai!', date:'23 Sep 2026' }]
@@ -152,7 +152,7 @@ KI.venues = [
             Football: [
                 { id:50, time:'6:00 AM – 7:00 AM',  status:'available' },
                 { id:51, time:'7:00 AM – 8:00 AM',  status:'available' },
-                { id:52, time:'5:00 PM – 6:00 PM',  status:'booked'    },
+                { id:52, time:'5:00 PM – 6:00 PM',  status:'available'    },
                 { id:53, time:'6:00 PM – 7:00 PM',  status:'available' },
             ],
         },
@@ -172,7 +172,7 @@ KI.venues = [
             Cricket: [
                 { id:60, time:'6:00 AM – 7:00 AM',  status:'available' },
                 { id:61, time:'5:00 PM – 6:00 PM',  status:'available' },
-                { id:62, time:'6:00 PM – 7:00 PM',  status:'booked'    },
+                { id:62, time:'6:00 PM – 7:00 PM',  status:'available'    },
             ],
             Football: [
                 { id:63, time:'6:00 AM – 7:00 AM',  status:'available' },
@@ -193,8 +193,8 @@ KI.venues = [
         description: 'Community sports ground with multiple pitches and covered badminton courts at affordable prices.',
         slots: {
             Football: [
-                { id:70, time:'6:00 AM – 7:00 AM',  status:'booked'    },
-                { id:71, time:'7:00 AM – 8:00 AM',  status:'booked'    },
+                { id:70, time:'6:00 AM – 7:00 AM',  status:'available'    },
+                { id:71, time:'7:00 AM – 8:00 AM',  status:'available'    },
                 { id:72, time:'5:00 PM – 6:00 PM',  status:'available' },
             ],
         },
@@ -214,7 +214,7 @@ KI.venues = [
             Cricket: [
                 { id:80, time:'6:00 AM – 7:00 AM',  status:'available' },
                 { id:81, time:'7:00 AM – 8:00 AM',  status:'available' },
-                { id:82, time:'6:00 PM – 7:00 PM',  status:'booked'    },
+                { id:82, time:'6:00 PM – 7:00 PM',  status:'available'    },
             ],
         },
         reviews: []
@@ -232,12 +232,12 @@ KI.venues = [
         slots: {
             Cricket: [
                 { id:90, time:'6:00 AM – 7:00 AM',  status:'available' },
-                { id:91, time:'7:00 AM – 8:00 AM',  status:'booked'    },
+                { id:91, time:'7:00 AM – 8:00 AM',  status:'available'    },
                 { id:92, time:'6:00 PM – 7:00 PM',  status:'available' },
             ],
             Badminton: [
                 { id:93, time:'6:00 AM – 7:00 AM',  status:'available' },
-                { id:94, time:'6:00 PM – 7:00 PM',  status:'partial'   },
+                { id:94, time:'6:00 PM – 7:00 PM',  status:'available'   },
             ],
         },
         reviews: []
@@ -255,7 +255,7 @@ KI.venues = [
         slots: {
             Cricket: [
                 { id:100, time:'6:00 AM – 7:00 AM',  status:'available' },
-                { id:101, time:'7:00 AM – 8:00 AM',  status:'partial'   },
+                { id:101, time:'7:00 AM – 8:00 AM',  status:'available'   },
                 { id:102, time:'5:00 PM – 6:00 PM',  status:'available' },
             ],
         },
@@ -272,7 +272,7 @@ KI.venues = [
         facilities: ['Parking','Changing Room','Drinking Water','Washroom','Flood Lights','Equipment Rental','First Aid'],
         description: 'Large sports village with five separate play areas for all five major sports. Great for groups.',
         slots: {
-            Cricket:  [{ id:110, time:'6:00 AM – 7:00 AM',  status:'available' }, { id:111, time:'7:00 PM – 8:00 PM',  status:'booked'    }],
+            Cricket:  [{ id:110, time:'6:00 AM – 7:00 AM',  status:'available' }, { id:111, time:'7:00 PM – 8:00 PM',  status:'available'    }],
             Football: [{ id:112, time:'6:00 AM – 7:00 AM',  status:'available' }, { id:113, time:'6:00 PM – 7:00 PM',  status:'available' }],
         },
         reviews: []
@@ -289,7 +289,7 @@ KI.venues = [
         description: 'Club-style facilities near Film City with pay-per-slot booking options. Well-lit for evening games.',
         slots: {
             Cricket:  [{ id:120, time:'6:00 AM – 7:00 AM', status:'available'}, { id:121, time:'7:00 PM – 8:00 PM', status:'available'}],
-            Badminton:[{ id:122, time:'6:00 PM – 7:00 PM', status:'partial'},   { id:123, time:'7:00 PM – 8:00 PM', status:'available'}],
+            Badminton:[{ id:122, time:'6:00 PM – 7:00 PM', status:'available'},   { id:123, time:'7:00 PM – 8:00 PM', status:'available'}],
         },
         reviews: []
     },
@@ -304,8 +304,8 @@ KI.venues = [
         facilities: ['Parking','Changing Room','Drinking Water','Washroom','Flood Lights','Equipment Rental','First Aid','Canteen'],
         description: 'Urban sports arena in the heart of Mumbai\'s commercial district. Premium artificial turf and indoor courts.',
         slots: {
-            Cricket:  [{ id:130, time:'7:00 AM – 8:00 AM', status:'available'}, { id:131, time:'8:00 PM – 9:00 PM', status:'partial'}],
-            Badminton:[{ id:132, time:'7:00 AM – 8:00 AM', status:'available'}, { id:133, time:'7:00 PM – 8:00 PM', status:'booked'}],
+            Cricket:  [{ id:130, time:'7:00 AM – 8:00 AM', status:'available'}, { id:131, time:'8:00 PM – 9:00 PM', status:'available'}],
+            Badminton:[{ id:132, time:'7:00 AM – 8:00 AM', status:'available'}, { id:133, time:'7:00 PM – 8:00 PM', status:'available'}],
         },
         reviews: []
     },
@@ -335,9 +335,9 @@ KI.venues = [
         facilities: ['Parking','Changing Room','Drinking Water','Washroom','Flood Lights','Equipment Rental','First Aid','Canteen'],
         description: 'Planned sports township with the largest ground capacity in the MMR. 5 sports, 2 courts each.',
         slots: {
-            Cricket:  [{ id:150, time:'6:00 AM – 7:00 AM', status:'available'}, { id:151, time:'7:00 PM – 8:00 PM', status:'partial'}],
+            Cricket:  [{ id:150, time:'6:00 AM – 7:00 AM', status:'available'}, { id:151, time:'7:00 PM – 8:00 PM', status:'available'}],
             Football: [{ id:152, time:'6:00 AM – 7:00 AM', status:'available'}, { id:153, time:'8:00 PM – 9:00 PM', status:'available'}],
-            Badminton:[{ id:154, time:'6:00 AM – 7:00 AM', status:'available'}, { id:155, time:'6:00 PM – 7:00 PM', status:'booked'}],
+            Badminton:[{ id:154, time:'6:00 AM – 7:00 AM', status:'available'}, { id:155, time:'6:00 PM – 7:00 PM', status:'available'}],
         },
         reviews: []
     },

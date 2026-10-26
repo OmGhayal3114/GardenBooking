@@ -160,13 +160,11 @@ async function fetchApiBookings() {
 }
 
 async function loadBookings() {
-    const token = localStorage.getItem('ki_token');
     const user = JSON.parse(localStorage.getItem('ki_user') || 'null');
-    let stored = [];
-    try { stored = JSON.parse(localStorage.getItem('ki_bookings') || '[]'); } catch (_) { stored = []; }
+    const token = localStorage.getItem('ki_token');
 
-    // If no token, no logged in user, and no stored bookings, show login prompt
-    if (!token && !user && stored.length === 0) {
+    // If user is not logged in, show login prompt
+    if (!user && !token) {
         showLoginPrompt();
         return;
     }
@@ -178,8 +176,23 @@ async function loadBookings() {
         '<p>Loading your bookings...</p></div>';
 
     const apiData = await fetchApiBookings();
+
+    // Load stored bookings and filter STRICTLY for the current logged-in user
+    let stored = [];
+    try {
+        const raw = JSON.parse(localStorage.getItem('ki_bookings') || '[]');
+        stored = raw.filter(b => {
+            if (!user) return false;
+            const matchId = user.id && b.user_id && String(user.id) === String(b.user_id);
+            const matchEmail = user.email && b.email && user.email.toLowerCase() === b.email.toLowerCase();
+            return matchId || matchEmail;
+        });
+    } catch (_) {
+        stored = [];
+    }
+
     if (apiData !== null && apiData.length > 0) {
-        // Merge API data with local bookings (avoid duplicate entries)
+        // Merge API data with local user-specific bookings
         const combined = [...apiData];
         stored.forEach(sb => {
             const id = sb.id || sb.booking_ref || sb.booking_id;
@@ -188,10 +201,10 @@ async function loadBookings() {
             }
         });
         allBookings = combined;
-        saveBookings();
     } else {
         allBookings = stored.map(mapApiBooking);
     }
+
     filterBookings(currentFilter, document.querySelector('.bookings-tab.active'));
 }
 
